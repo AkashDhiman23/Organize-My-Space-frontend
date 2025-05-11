@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 
 function Signup() {
   const [formData, setFormData] = useState({
-    fullName: '', // New field for full name
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [adminId, setAdminId] = useState(null); // Store the admin ID after successful signup
+  const navigate = useNavigate();
 
-  const handleChange = e => setFormData(f => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = e =>
+    setFormData(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -30,17 +32,17 @@ function Signup() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          full_name: formData.fullName, // Sending the full name in the request
+          full_name: formData.fullName,
           email: formData.email,
           password: formData.password
         })
       });
+
       const data = await res.json();
 
       if (res.ok && data.admin_id) {
-        setAdminId(data.admin_id);
-        alert('Signup successful! Check your email for the OTP.');
-        window.location.href = `/verify-otp/${data.admin_id}`; // Redirect to OTP verification page
+        alert('Signup successful!');
+        navigate(`/CompanyDetails/${data.admin_id}`);
       } else {
         setError(data.detail || 'Signup failed');
       }
@@ -124,16 +126,7 @@ function Signup() {
 
           {error && <p className="error-message">{error}</p>}
 
-          <div className="divider">OR</div>
-
-          <div className="social-buttons">
-            <button className="google-btn">
-              <i className="fab fa-google" /> Google
-            </button>
-            <button className="facebook-btn">
-              <i className="fab fa-facebook-f" /> Facebook
-            </button>
-          </div>
+          
         </motion.div>
       </div>
     </div>

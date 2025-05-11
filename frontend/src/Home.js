@@ -6,12 +6,12 @@ const HomePage = () => {
     <div style={styles.container}>
       {/* Navbar */}
       <nav style={styles.navbar}>
-        <img src="/images/Asset2.png" alt="Logo" style={styles.logo} />
+        <img src="/images/logo.png" alt="Logo" style={styles.logo} />
         <div style={styles.navLinks}>
           <a href="#home" style={styles.navLink}>Home</a>
           <a href="#about" style={styles.navLink}>About</a>
           <a href="#contact" style={styles.navLink}>Contact</a>
-          <a href="/signup" style={styles.navLink}>Login</a>
+          <a href="/signup" style={styles.navLink}>Signup</a>
         </div>
       </nav>
 
@@ -27,19 +27,31 @@ const HomePage = () => {
           <p style={styles.bannerSubtitle}>Effortlessly manage tasks and assign roles with ease.</p>
           
           <div style={styles.iconContainer}>
-            <motion.div style={styles.iconBox} whileHover={{ scale: 1.1 }}>
-              <img src="/images/admin.png" alt="Admin" style={styles.icon} />
-              <p>Admin</p>
-            </motion.div>
-            <motion.div style={styles.iconBox} whileHover={{ scale: 1.1 }}>
-              <img src="/images/manager.png" alt="Manager" style={styles.icon} />
-              <p>Manager</p>
-            </motion.div>
-            <motion.div style={styles.iconBox} whileHover={{ scale: 1.1 }}>
-              <img src="/images/user.png" alt="User" style={styles.icon} />
-              <p>User</p>
-            </motion.div>
-          </div>
+              <motion.div style={styles.iconBox} whileHover={{ scale: 1.1 }}>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/2206/2206368.png"
+                  alt="Admin"
+                  style={styles.icon}
+                />
+                <p>Admin</p>
+              </motion.div>
+              <motion.div style={styles.iconBox} whileHover={{ scale: 1.1 }}>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                  alt="Manager"
+                  style={styles.icon}
+                />
+                <p>Manager</p>
+              </motion.div>
+              <motion.div style={styles.iconBox} whileHover={{ scale: 1.1 }}>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png"
+                  alt="User"
+                  style={styles.icon}
+                />
+                <p>User</p>
+              </motion.div>
+            </div>
 
           {/* Animated Lines */}
           <motion.div
@@ -195,7 +207,7 @@ const styles = {
     padding: "15px 40px",
     backgroundColor: "#1f1f1f",
   },
-  logo: { width: "50px" },
+  logo: { width: "100px" },
   navLinks: { display: "flex", gap: "20px" },
   navLink: { color: "#f5f5f5", textDecoration: "none", fontSize: "1.1rem" },
   bannerSection: {

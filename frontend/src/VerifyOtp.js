@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './VerifyOtp.css';
 
@@ -9,6 +9,7 @@ function VerifyOtp() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // for back navigation
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -71,10 +72,19 @@ function VerifyOtp() {
                 required
               />
             </div>
-            <button type="submit" disabled={loading}>
+            <button type="submit" className="primary-button" disabled={loading}>
               {loading ? 'Verifying…' : 'Verify OTP'}
             </button>
           </form>
+
+           {/* Back Button */}
+          <button
+          type="button"
+          className="back-button"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
+        </button>
 
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">OTP verified successfully!</p>}

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom'; 
 import './Signup.css';
 
-function CompanyDetails({ match }) {
-  const adminId = match.params.adminId; // Get the admin ID from the URL
+function CompanyDetails() {
+  const { adminId } = useParams(); 
+  const navigate = useNavigate();  
+
   const [companyData, setCompanyData] = useState({
     companyName: '',
     address: '',
@@ -18,8 +21,8 @@ function CompanyDetails({ match }) {
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
-
     setLoading(true);
+
     try {
       const res = await fetch('http://localhost:8000/accounts/create-company/', {
         method: 'POST',
@@ -31,11 +34,12 @@ function CompanyDetails({ match }) {
           GSTDetails: companyData.gstDetails
         })
       });
+
       const data = await res.json();
 
       if (res.ok) {
         alert('Company details saved successfully!');
-        window.location.href = '/dashboard'; // Redirect to the dashboard after success
+        navigate('/dashboard'); // ✅ Use navigate instead of window.location.href
       } else {
         setError(data.detail || 'Failed to save company details');
       }

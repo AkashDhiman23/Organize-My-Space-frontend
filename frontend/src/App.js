@@ -13,7 +13,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        
+        <Route path="/CompanyDetails/:adminId" element={<CompanyDetails />} />
         <Route path="/verify-otp/:adminId" element={<VerifyOtp />} />
       </Routes>
     </Router>
