@@ -1,0 +1,87 @@
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import './VerifyOtp.css';
+
+function VerifyOtp() {
+  const { admin_id } = useParams(); // from the URL: /verify-otp/:admin_id
+  const [otp, setOtp] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch('http://localhost:8000/accounts/verify-otp/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin_id, otp })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.message === "OTP verified successfully") {
+        setSuccess(true);
+        alert('OTP verified! You can now log in.');
+        window.location.href = '/admin-login'; // Or your dashboard URL
+      } else {
+        setError(data.detail || 'OTP verification failed');
+      }
+    } catch {
+      setError('Server error. Try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="verify-page">
+      <div className="left-section">
+        <motion.h1
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.7 }}
+        >
+          VERIFY YOUR EMAIL
+        </motion.h1>
+      </div>
+
+      <div className="right-section">
+        <motion.div
+          className="form-container"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2>Enter OTP</h2>
+          <p className="subtitle">Check your email for the OTP</p>
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <i className="fas fa-key" />
+              <input
+                type="text"
+                name="otp"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" disabled={loading}>
+              {loading ? 'Verifying…' : 'Verify OTP'}
+            </button>
+          </form>
+
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">OTP verified successfully!</p>}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+export default VerifyOtp;

@@ -3,17 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-spring/web": "^9.7.5",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
-    "axios": "^1.8.4",
-    "framer-motion": "^12.5.0",
-    "konva": "^9.3.20",
+    "axios": "^1.7.9",
+    "bootstrap": "^5.3.5",
+    "framer-motion": "^12.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-konva": "^19.0.3",
+    "react-router-dom": "^7.2.0",
     "react-scripts": "5.0.1",
+    "react-spring": "^9.7.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
