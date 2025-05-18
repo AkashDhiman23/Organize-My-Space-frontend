@@ -8,7 +8,10 @@ function Signup() {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    companyName: '',
+    address: '',
+    gstDetails: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -34,7 +37,10 @@ function Signup() {
         body: JSON.stringify({
           full_name: formData.fullName,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          company_name: formData.companyName,
+          address: formData.address,
+          gst_details: formData.gstDetails
         })
       });
 
@@ -42,7 +48,7 @@ function Signup() {
 
       if (res.ok && data.admin_id) {
         alert('Signup successful!');
-        navigate(`/CompanyDetails/${data.admin_id}`);
+        navigate(`/dashboard`);
       } else {
         setError(data.detail || 'Signup failed');
       }
@@ -119,14 +125,48 @@ function Signup() {
                 required
               />
             </div>
+
+            {/* New Company Fields */}
+            <div className="input-group">
+              <i className="fas fa-building" />
+              <input
+                type="text"
+                name="companyName"
+                placeholder="Company Name"
+                onChange={handleChange}
+                value={formData.companyName}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <i className="fas fa-map-marker-alt" />
+              <input
+                type="text"
+                name="address"
+                placeholder="Company Address"
+                onChange={handleChange}
+                value={formData.address}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <i className="fas fa-file-invoice-dollar" />
+              <input
+                type="text"
+                name="gstDetails"
+                placeholder="GST Details"
+                onChange={handleChange}
+                value={formData.gstDetails}
+                required
+              />
+            </div>
+
             <button type="submit" disabled={loading}>
               {loading ? 'Signing up…' : 'Sign up'}
             </button>
           </form>
 
           {error && <p className="error-message">{error}</p>}
-
-          
         </motion.div>
       </div>
     </div>

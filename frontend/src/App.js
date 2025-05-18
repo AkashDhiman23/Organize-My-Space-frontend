@@ -3,7 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Home from './Home';
 import Login from './Login';
 import Signup from './Signup';
-import CompanyDetails from './CompanyDetails';
+import Dashboard from './Dashboard';
 import VerifyOtp from './VerifyOtp';
 
 function App() {
@@ -13,8 +13,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/CompanyDetails/:adminId" element={<CompanyDetails />} />
         <Route path="/verify-otp/:adminId" element={<VerifyOtp />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
