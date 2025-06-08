@@ -3,9 +3,25 @@ import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import './Signup.css';
 
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
 function CompanyDetails() {
   const { adminId } = useParams(); 
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const [companyData, setCompanyData] = useState({
     companyName: '',
@@ -23,15 +39,21 @@ function CompanyDetails() {
     setError(null);
     setLoading(true);
 
+    const csrftoken = getCookie('csrftoken');
+
     try {
       const res = await fetch('http://localhost:8000/accounts/create-company/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',  // Send cookies (sessionid)
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,  // CSRF token header
+        },
         body: JSON.stringify({
           admin_id: adminId,
-          CompanyName: companyData.companyName,
-          Address: companyData.address,
-          GSTDetails: companyData.gstDetails
+          company_name: companyData.companyName,
+          address: companyData.address,
+          gst_details: companyData.gstDetails
         })
       });
 
@@ -39,7 +61,7 @@ function CompanyDetails() {
 
       if (res.ok) {
         alert('Company details saved successfully!');
-        navigate('/dashboard'); // ✅ Use navigate instead of window.location.href
+        navigate('/dashboard'); // Navigate on success
       } else {
         setError(data.detail || 'Failed to save company details');
       }

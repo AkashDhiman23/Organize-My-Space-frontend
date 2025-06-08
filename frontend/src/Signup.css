@@ -94,9 +94,7 @@ button[type="submit"] {
   cursor: pointer;
   transition: 0.3s;
 }
-button[type="submit"]:hover {
-  opacity: 0.9;
-}
+
 
 /* Divider */
 .divider {
@@ -117,31 +115,7 @@ button[type="submit"]:hover {
 .divider::before { left: 0; }
 .divider::after  { right: 0; }
 
-/* Social Buttons */
-.social-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-.social-buttons button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  color: white;
-}
-.google-btn {
-  background: #db4437;
-}
-.facebook-btn {
-  background: #3b5998;
-}
+
 
 /* Terms */
 .terms {

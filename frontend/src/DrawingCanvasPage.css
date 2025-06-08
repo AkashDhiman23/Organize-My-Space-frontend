@@ -1,0 +1,116 @@
+/* Canvas Page CSS */
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+/* Navbar styling */
+.navbar {
+  display: flex;
+  align-items: center;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  margin-right: 20px;
+  padding: 5px 10px;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navbar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Canvas wrapper */
+.canvas-wrapper {
+  height: calc(100vh - 50px); /* full height minus navbar */
+  background: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  position: relative;
+}
+
+/* Main drawing canvas */
+.drawing-canvas {
+  background-color: white;
+  border: 2px solid #333;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 600px;
+  height: 400px;
+}
+
+/* Eraser canvas overlays on top */
+.eraser-canvas {
+  position: absolute;
+  top: 15px; /* same padding as wrapper */
+  left: 15px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Tools list */
+.tool-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  width: 120px;
+}
+
+.tool-list li {
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  user-select: none;
+  transition: background-color 0.2s, color 0.2s;
+  border: 1px solid transparent;
+}
+
+.tool-list li:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.tool-list li.active {
+  background-color: #0056b3;
+  color: #fff;
+  border-color: #003d80;
+}

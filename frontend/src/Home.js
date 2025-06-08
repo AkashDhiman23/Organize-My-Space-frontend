@@ -8,12 +8,15 @@ const HomePage = () => {
     <div style={styles.container}>
       {/* Navbar */}
       <nav style={styles.navbar}>
-        <img src="/images/logo.png" alt="Logo" style={styles.logo} />
-        <div style={styles.navLinks}>
-          <a href="#home" style={styles.navLink}>Home</a>
+        <div style={styles.logoContainer}>
+          <a href="/">
+            <img src="/images/logo.png" alt="Logo" style={styles.logo} />
+          </a>
+        </div>
+        <div style={styles.navLinksContainer}>
           <a href="#about" style={styles.navLink}>About</a>
-          <a href="#contact" style={styles.navLink}>Contact</a>
-          <a href="/login" style={styles.navLink}>SIGN IN</a>
+          <a href="/designer" style={styles.navLink}>Designer</a>
+          <a href="/login" style={styles.navLink}>Sign in</a>
         </div>
       </nav>
 
@@ -28,7 +31,7 @@ const HomePage = () => {
         >
           {[
             {
-              src: "/images/banner1.png",
+              src: "/images/banner.jpg",
               title: "Effortless Task Management",
               subtitle: "Stay on top of your to-do list with ease.",
             },
@@ -38,7 +41,7 @@ const HomePage = () => {
               subtitle: "Assign roles and control access intelligently.",
             },
             {
-              src: "/images/banner3.jpg",
+              src: "/images/banner3.png",
               title: "Organize Your Digital Space",
               subtitle: "Smart solutions for smart people.",
             },
@@ -171,20 +174,37 @@ const styles = {
     textAlign: "center",
     overflowX: "hidden",
   },
-  navbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "15px 40px",
-    backgroundColor: "#1f1f1f",
-    flexWrap: "wrap",
-  },
-  logo: { width: "100px" },
-  navLinks: { display: "flex", gap: "20px", flexWrap: "wrap" },
-  navLink: { color: "#f5f5f5", textDecoration: "none", fontSize: "1.1rem" },
-  bannerSection: {
-    height: "800px",
-    backgroundColor: "#222",
-  },
+ navbar: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "10px 20px",
+  backgroundColor: "#1f1f1f",
+  flexWrap: "wrap",
+},
+
+logoContainer: {
+  flex: "1",
+},
+
+logo: {
+  width: "150px",
+},
+
+navLinksContainer: {
+  flex: "2",
+  display: "flex",
+  justifyContent: "center",
+  flexWrap: "wrap",
+  gap: "20px",
+},
+
+navLink: {
+  color: "#f5f5f5",
+  textDecoration: "none",
+  fontSize: "1.1rem",
+},
+
   slideContainer: {
     position: "relative",
     height: "800px",
@@ -287,6 +307,7 @@ const styles = {
     maxWidth: "900px",
     margin: "0 auto",
     color: "#000",
+    marginBottom: "50px",
   },
   enquiryTitle: {
     fontSize: "2.5rem",
@@ -329,35 +350,44 @@ const styles = {
     resize: "none",
   },
   footer: {
-    padding: "20px 0",
+    padding: "20px",
     backgroundColor: "#1f1f1f",
     color: "#f5f5f5",
+    position: "relative",
+    minHeight: "120px",
   },
+
   footerContent: {
     display: "flex",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     textAlign: "left",
     maxWidth: "1200px",
     margin: "0 auto",
     flexWrap: "wrap",
+    alignItems: "flex-end", // Align all items to bottom
   },
+
   companyDetails: {
     flex: "1",
   },
+
   companyName: {
     fontSize: "1.8rem",
     fontWeight: "bold",
     marginBottom: "10px",
   },
+
   companyAddress: { fontSize: "1rem", marginBottom: "5px" },
   companyPhone: { fontSize: "1rem", marginBottom: "5px" },
   companyEmail: { fontSize: "1rem" },
+
   footerText: {
-    textAlign: "center",
-    marginTop: "20px",
     fontSize: "0.9rem",
-    color: "#777",
+    color: "#ccc", // brighter color for better contrast
+    whiteSpace: "nowrap",
+    margin: 0,
   },
+
 };
 
 export default HomePage;
