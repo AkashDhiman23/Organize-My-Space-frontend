@@ -1,0 +1,142 @@
+/* Reset & Base */
+* {
+  box-sizing: border-box;
+}
+
+.project-detail-page {
+  max-width: 700px;
+  margin: 40px auto;
+  background-color: #fff;
+  padding: 2.5rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+/* Back button */
+.back-btn {
+  background: none;
+  border: none;
+  color: #1abc9c;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.back-btn:hover {
+  color: #16a085;
+}
+
+/* Heading */
+.project-detail-page h2 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #1abc9c;
+  padding-bottom: 6px;
+  color: #34495e;
+}
+
+/* Size input grid */
+.size-grid {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.size-grid input {
+  flex: 1 1 100px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.8px solid #d1d9e6;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.size-grid input:focus {
+  border-color: #1abc9c;
+  outline: none;
+  box-shadow: 0 0 6px #16a085aa;
+}
+
+/* Square feet text */
+.project-detail-page p strong {
+  color: #34495e;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+/* File input label */
+.file-label {
+  display: inline-block;
+  margin-top: 1.5rem;
+  margin-bottom: 0.4rem;
+  padding: 12px 20px;
+  background-color: #1abc9c;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.file-label:hover {
+  background-color: #16a085;
+}
+
+/* Hide native file input */
+.file-label input[type="file"] {
+  display: none;
+}
+
+/* Files selected text */
+.project-detail-page p {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  margin-top: 0.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Save button */
+.save-btn {
+  background-color: #1abc9c;
+  border: none;
+  color: white;
+  font-weight: 700;
+  padding: 14px 14px;
+  width: 100%;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  gap: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(26, 188, 156, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.save-btn:hover {
+  background-color: #16a085;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .project-detail-page {
+    margin: 20px;
+    padding: 1.5rem 2rem;
+  }
+
+  .size-grid {
+    flex-direction: column;
+  }
+
+  .size-grid input {
+    flex: 1 1 auto;
+  }
+}

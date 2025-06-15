@@ -18,7 +18,7 @@ function AdminDashboard() {
   const [settingsMessage, setSettingsMessage] = useState(null);
 
   const [members, setMembers] = useState([]);
-  const [projects, setProjects] = useState([]);
+  const [customers, setCustomers] = useState([]);
 
   useEffect(() => {
     const storedName = sessionStorage.getItem('username') || 'Admin';
@@ -45,7 +45,7 @@ function AdminDashboard() {
     } else if (activeTab === 'add-member') {
       fetchMembers();
     } else if (activeTab === 'projects') {
-      fetchProjects();
+      fetchCustomers();
     }
   }, [activeTab]);
 
@@ -69,29 +69,27 @@ function AdminDashboard() {
     }
   };
 
+  const fetchCustomers = async () => {
+    try {
+      const r = await fetch('http://localhost:8000/accounts/customers_admin/', {
+        credentials: 'include',
+      });
+      if (!r.ok) throw new Error('Customers fetch failed');
+      setCustomers(await r.json());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const fetchMembers = async () => {
     try {
       const res = await fetch('http://localhost:8000/accounts/members/', {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch members');
-      const data = await res.json();
-      setMembers(data);
-    } catch (err) {
-      console.error('Error loading members:', err.message);
-    }
-  };
-
-  const fetchProjects = async () => {
-    try {
-      const res = await fetch('http://localhost:8000/projects/', {
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Failed to fetch projects');
-      const data = await res.json();
-      setProjects(data);
-    } catch (err) {
-      console.error('Error loading projects:', err.message);
+      setMembers(await res.json());
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -102,7 +100,7 @@ function AdminDashboard() {
       const cookies = document.cookie.split(';');
       for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        if (cookie.substring(0, name.length + 1) === name + '=') {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
           break;
         }
@@ -184,7 +182,7 @@ function AdminDashboard() {
       const response = await fetch('http://localhost:8000/accounts/company-details/', {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -206,6 +204,97 @@ function AdminDashboard() {
     }
   };
 
+  /* ------------- render helpers ------------- */
+
+  const renderCustomers = () =>
+    customers.length === 0 ? (
+      <p className="text-muted fst-italic">No customers found.</p>
+    ) : (
+      <div className="table-responsive shadow-sm rounded">
+        <table className="table table-hover table-bordered align-middle mb-0 bg-white">
+          <thead className="table-primary text-primary fw-semibold">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Manager</th>
+              <th>Status</th>
+              <th style={{ minWidth: '180px' }}>Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+            {customers.map((c, i) => (
+              <tr key={c.id} className="align-middle">
+                <td>{i + 1}</td>
+                <td className="fw-semibold">{c.name}</td>
+                <td>{c.email}</td>
+                <td>{c.manager_name || '—'}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      c.status === 'Active'
+                        ? 'bg-success'
+                        : c.status === 'Pending'
+                        ? 'bg-warning text-dark'
+                        : 'bg-secondary'
+                    }`}
+                  >
+                    {c.status}
+                  </span>
+                </td>
+                <td>
+                  <div className="progress rounded-pill" style={{ height: '14px' }}>
+                    <div
+                      className={`progress-bar ${
+                        c.progress_percentage === 100
+                          ? 'bg-success'
+                          : c.progress_percentage >= 50
+                          ? 'bg-info'
+                          : 'bg-warning'
+                      }`}
+                      style={{ width: `${c.progress_percentage}%` }}
+                      aria-valuenow={c.progress_percentage}
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    />
+                  </div>
+                  <small className="text-muted">{c.progress_percentage}%</small>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
+  const renderMembers = () =>
+    members.length === 0 ? (
+      <p className="text-muted fst-italic">No members yet.</p>
+    ) : (
+      <div className="table-responsive shadow-sm rounded">
+        <table className="table table-hover table-bordered align-middle mb-0 bg-white">
+          <thead className="table-secondary text-secondary fw-semibold">
+            <tr>
+              <th>#</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map((m, i) => (
+              <tr key={m.id}>
+                <td>{i + 1}</td>
+                <td className="fw-semibold">{m.full_name}</td>
+                <td>{m.email}</td>
+                <td>{m.role}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -224,27 +313,50 @@ function AdminDashboard() {
           <div className="form-section">
             <h2>Add New Staff Member</h2>
             <form className="member-form" onSubmit={handleAddMember}>
-              <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required disabled={loading} />
-              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} />
-              <select value={role} onChange={(e) => setRole(e.target.value)} className="dropdown" required disabled={loading}>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="dropdown"
+                required
+                disabled={loading}
+              >
                 <option value="Designer">Designer</option>
                 <option value="Manager">Manager</option>
                 <option value="Production">Production</option>
               </select>
-              <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} />
-              <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Account'}</button>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <button type="submit" disabled={loading}>
+                {loading ? 'Creating...' : 'Create Account'}
+              </button>
             </form>
             {message && <p className="message">{message}</p>}
 
-            <div className="members-list">
+            <div className="members-list mt-4">
               <h3>All Members</h3>
-              <ul>
-                {members.map(member => (
-                  <li key={member.id}>
-                    <strong>{member.full_name}</strong> – {member.email} ({member.role})
-                  </li>
-                ))}
-              </ul>
+              {renderMembers()}
             </div>
           </div>
         );
@@ -252,13 +364,8 @@ function AdminDashboard() {
         return (
           <div className="project-section">
             <h2>Project Management</h2>
-            <ul>
-              {projects.map(project => (
-                <li key={project.id}>
-                  <strong>{project.title}</strong> – {project.status} (by {project.created_by})
-                </li>
-              ))}
-            </ul>
+            <h3 className="mt-4">Customers</h3>
+            {renderCustomers()}
           </div>
         );
       case 'settings':
@@ -266,10 +373,32 @@ function AdminDashboard() {
           <div className="settings-section">
             <h2>Company Settings</h2>
             <form className="settings-form" onSubmit={handleSaveCompanyDetails}>
-              <input type="text" placeholder="Company Name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required disabled={loading} />
-              <textarea placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} required disabled={loading} />
-              <input type="text" placeholder="GST Number" value={gstNumber} onChange={(e) => setGstNumber(e.target.value)} required disabled={loading} />
-              <button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</button>
+              <input
+                type="text"
+                placeholder="Company Name"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <textarea
+                placeholder="Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="GST Number"
+                value={gstNumber}
+                onChange={(e) => setGstNumber(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <button type="submit" disabled={loading}>
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
             </form>
             {settingsMessage && <p className="message">{settingsMessage}</p>}
           </div>
@@ -285,11 +414,33 @@ function AdminDashboard() {
         <h1>Admin</h1>
         <nav>
           <ul>
-            <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>Dashboard</li>
-            <li className={activeTab === 'add-member' ? 'active' : ''} onClick={() => setActiveTab('add-member')}>Add Member</li>
-            <li className={activeTab === 'projects' ? 'active' : ''} onClick={() => setActiveTab('projects')}>Projects</li>
-            <li className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>Settings</li>
-            <li onClick={handleLogout} style={{ cursor: 'pointer' }}>Logout</li>
+            <li
+              className={activeTab === 'dashboard' ? 'active' : ''}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              Dashboard
+            </li>
+            <li
+              className={activeTab === 'add-member' ? 'active' : ''}
+              onClick={() => setActiveTab('add-member')}
+            >
+              Add Member
+            </li>
+            <li
+              className={activeTab === 'projects' ? 'active' : ''}
+              onClick={() => setActiveTab('projects')}
+            >
+              Projects
+            </li>
+            <li
+              className={activeTab === 'settings' ? 'active' : ''}
+              onClick={() => setActiveTab('settings')}
+            >
+              Settings
+            </li>
+            <li onClick={handleLogout} style={{ cursor: 'pointer' }}>
+              Logout
+            </li>
           </ul>
         </nav>
       </aside>

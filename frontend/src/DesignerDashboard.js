@@ -12,6 +12,7 @@ function DesignerDashboard() {
 
   const [uploadingCustomerId, setUploadingCustomerId] = useState(null);
   const [uploadFile, setUploadFile] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,9 +22,10 @@ function DesignerDashboard() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/accounts/all-customers/", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "http://localhost:8000/accounts/all-customers/",
+        { withCredentials: true }
+      );
       setCustomers(res.data);
     } catch (err) {
       console.error(err);
@@ -33,9 +35,10 @@ function DesignerDashboard() {
 
   const fetchCompanyDetails = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/accounts/company-details/", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "http://localhost:8000/accounts/company-details/",
+        { withCredentials: true }
+      );
       setCompanyDetails(res.data);
     } catch (err) {
       console.error(err);
@@ -43,16 +46,11 @@ function DesignerDashboard() {
     }
   };
 
-  // Image upload handlers
-  const handleFileChange = (e) => {
-    setUploadFile(e.target.files[0]);
-  };
+  const handleFileChange = (e) => setUploadFile(e.target.files[0]);
 
   const uploadImage = async () => {
-    if (!uploadFile) {
-      alert("Please select a file first.");
-      return;
-    }
+    if (!uploadFile) return alert("Please select a file first.");
+
     const formData = new FormData();
     formData.append("image_file", uploadFile);
 
@@ -82,21 +80,28 @@ function DesignerDashboard() {
       </aside>
 
       <main className="main-area">
+        {/* top nav */}
         <nav className="top-navbar">
-          <div className="company-logo">🌟 <span>{companyDetails.company_name}</span></div>
-
+          <div className="company-logo">
+            <span>{companyDetails.company_name}</span>
+          </div>
           <ul className="nav-links">
-            <li><button className="nav-link active">Dashboard</button></li>
-            <li><button className="nav-link">Reports</button></li>
-            <li><button className="nav-link">Settings</button></li>
+            <li>
+              <button className="nav-link active">Dashboard</button>
+            </li>
           </ul>
-
           <div className="user-profile">
             <span className="user-name">{companyDetails.full_name}</span>
-            <button className="btn-logout" onClick={() => alert("Logout clicked!")}>Logout</button>
+            <button
+              className="btn-logout"
+              onClick={() => alert("Logout clicked!")}
+            >
+              Logout
+            </button>
           </div>
         </nav>
 
+        {/* main content */}
         <div className="main-content">
           <section className="customer-list">
             {customers.length === 0 && <p>No customers found.</p>}
@@ -104,13 +109,22 @@ function DesignerDashboard() {
             {customers.map((customer) => (
               <div className="customer-card" key={customer.id}>
                 <h3>{customer.name}</h3>
-                <p><strong>Email:</strong> {customer.email}</p>
-                <p><strong>Contact Number:</strong> {customer.contact_number}</p>
-                <p><strong>Address:</strong> {customer.address || "N/A"}</p>
+                <p>
+                  <strong>Email:</strong> {customer.email}
+                </p>
+                <p>
+                  <strong>Contact Number:</strong> {customer.contact_number}
+                </p>
+                <p>
+                  <strong>Address:</strong> {customer.address || "N/A"}
+                </p>
 
-                {/* Buttons */}
+                {/* ----- action buttons ----- */}
                 <div className="design-buttons">
-                  <button onClick={() => navigate(`/draw/${customer.id}`)}>Draw Design</button>
+                  <button onClick={() => navigate(`/project-details/${customer.id}`)}>
+                    Project Details
+                  </button>
+
                   <button
                     onClick={() => {
                       setUploadingCustomerId(customer.id);
@@ -121,12 +135,18 @@ function DesignerDashboard() {
                   </button>
                 </div>
 
-                {/* Image upload area */}
+                {/* ----- image upload ----- */}
                 {uploadingCustomerId === customer.id && (
                   <div className="upload-area">
-                    <input type="file" accept="image/*" onChange={handleFileChange} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
                     <button onClick={uploadImage}>Upload</button>
-                    <button onClick={() => setUploadingCustomerId(null)}>Cancel</button>
+                    <button onClick={() => setUploadingCustomerId(null)}>
+                      Cancel
+                    </button>
                   </div>
                 )}
               </div>

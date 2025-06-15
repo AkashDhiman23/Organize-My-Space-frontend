@@ -1,43 +1,60 @@
+/* --- Dashboard Base Layout --- */
 .admin-dashboard {
   display: flex;
   height: 100vh;
   font-family: 'Segoe UI', sans-serif;
+  background: #f8f9fa;
 }
 
 .sidebar {
   width: 220px;
   background-color: #343a40;
   color: white;
-  padding: 20px;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .sidebar h1 {
-  font-size: 24px;
+  font-weight: 700;
   margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  text-align: center;
+  user-select: none;
 }
 
-.sidebar ul {
+.sidebar ul,
+.sidebar nav ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.sidebar li {
-  margin: 1rem 0;
+.sidebar li,
+.sidebar nav ul li {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
   cursor: pointer;
-  padding: 10px;
-  border-radius: 8px;
-  transition: background 0.3s;
+  transition: background-color 0.3s ease;
+  user-select: none;
 }
 
-.sidebar li:hover {
+.sidebar nav ul li.active,
+.sidebar nav ul li:hover {
   background-color: #495057;
+  font-weight: 600;
 }
 
 .main-panel {
   flex: 1;
-  background-color: #f1f3f5;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
 }
 
 header {
@@ -51,67 +68,80 @@ header {
 
 .company-logo img {
   width: 50px;
-  height: auto;
-  border-radius: 8px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 0.5rem;
 }
 
 .main-content {
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-.stats {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.card {
   background: white;
-  padding: 1rem;
-  flex: 1;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  overflow-x: auto;
 }
 
+/* --- Form Styling --- */
 .form-section input,
 .settings-form input,
-.settings-form textarea {
+.settings-form textarea,
+.member-form input,
+.member-form select {
   display: block;
   width: 100%;
-  margin: 1rem 0;
-  padding: 0.7rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
-button {
-  padding: 0.7rem 1.5rem;
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+button,
+.member-form button,
+.settings-form button {
+  padding: 0.7rem 1.25rem;
   background: #007bff;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
+button:hover:not(:disabled),
+.member-form button:hover:not(:disabled),
+.settings-form button:hover:not(:disabled) {
   background: #0056b3;
 }
 
+button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
 
-/* Dropdown styling */
+/* --- Dropdown Styling --- */
 .dropdown {
-  display: block;
   width: 100%;
-  margin: 1rem 0;
   padding: 0.7rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: white;
   font-size: 1rem;
   color: #333;
-  appearance: none; /* Removes default arrow in some browsers */
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='gray' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='gray' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 16px 16px;
@@ -123,107 +153,85 @@ button:hover {
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-.designer-dashboard {
-  display: flex;
-  height: 100vh;
-  background-color: #f0f0f0;
-  font-family: Arial, sans-serif;
-}
-
-/* Sidebars */
-.left-sidebar {
-  width: 150px;
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 15px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.left-sidebar {
-  border-right: none;
-}
-
-.right-sidebar {
-  border-left: none;
-}
-
-.right-sidebar {
-  width: 220px;
-  background-color: #343a40;
-  color: white;
-  padding: 20px;
-}
-/* Canvas wrapper */
-.canvas-wrapper {
-  flex-grow: 1;
-  background: #ddd;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
-  position: relative;
-}
-
-/* Main canvas */
-.drawing-canvas {
+/* --- Table Styling --- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
   background-color: white;
-  border: 2px solid #333;
-  box-shadow: 0 0 10px rgba(0,0,0,0.15);
-  display: block;
-  position: relative;
-  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Eraser canvas overlays on top */
-.eraser-canvas {
-  position: absolute;
-  top: 15px; /* same padding as wrapper */
-  left: 15px;
-  z-index: 2;
-  pointer-events: none;
+.table thead {
+  background-color: #0d6efd;
+  color: white;
 }
 
-/* Tools list */
-.tool-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.table thead th {
+  text-align: left;
+  padding: 0.85rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-.tool-list li {
-  font-size: 24px;
+.table tbody td {
+  padding: 0.75rem 1.2rem;
+  font-size: 0.95rem;
+  color: #333;
+  border-top: 1px solid #e9ecef;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f9ff;
   cursor: pointer;
-  text-align: center;
-  padding: 10px;
-  border-radius: 5px;
-  user-select: none;
-  transition: background-color 0.2s, color 0.2s;
 }
 
-.tool-list li:hover {
-  background-color: #007bff;
-  color: rgb(255, 255, 255);
+.table-striped tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
 }
 
-.tool-list li.active {
-  background-color: #0056b3;
-  color: rgb(255, 255, 255);
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #dee2e6;
 }
 
-/* Navbar styling */
+.table thead th:first-child {
+  border-top-left-radius: 8px;
+}
+.table thead th:last-child {
+  border-top-right-radius: 8px;
+}
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.35em 0.6em;
+  border-radius: 0.375rem;
+}
+
+/* --- Navbar --- */
 .navbar {
   display: flex;
   align-items: center;
   background-color: #007bff;
   color: white;
   padding: 10px 20px;
-  position: sticky; /* keeps navbar at the top */
+  position: sticky;
   top: 0;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -251,7 +259,3 @@ button:hover {
   margin: 0;
 }
 
-/* Optional: some spacing for sidebars and canvas to not get hidden under navbar */
-.designer-dashboard {
-  padding-top: 50px; /* space for navbar */
-}

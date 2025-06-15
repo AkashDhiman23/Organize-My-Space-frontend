@@ -153,8 +153,6 @@ function ManagerDashboard() {
 
           <ul className="nav-links">
             <li><button className="nav-link active">Dashboard</button></li>
-            <li><button className="nav-link">Reports</button></li>
-            <li><button className="nav-link">Settings</button></li>
           </ul>
 
           <div className="user-profile">

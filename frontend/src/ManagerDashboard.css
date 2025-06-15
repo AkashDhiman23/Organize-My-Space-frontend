@@ -17,6 +17,9 @@ body, html, #root {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f7f9fc;
 }
 
 /* Sidebar */
@@ -29,6 +32,10 @@ body, html, #root {
   flex-direction: column;
   padding: 1.5rem 1rem;
   box-shadow: 2px 0 6px rgba(0,0,0,0.15);
+  /* override later */
+  width: 240px;
+  background-color: #2f3e46;
+  padding: 20px;
 }
 
 .sidebar h2 {
@@ -37,8 +44,13 @@ body, html, #root {
   font-size: 1.5rem;
   text-align: center;
   letter-spacing: 1px;
+
+  /* override */
+  font-size: 22px;
+  margin-bottom: 20px;
 }
 
+/* Buttons */
 .btn-add {
   background-color: #1abc9c;
   border: none;
@@ -130,6 +142,9 @@ body, html, #root {
   gap: 1rem;
   font-weight: 600;
   color: #34495e;
+
+  /* override */
+  gap: 15px;
 }
 
 .user-name {
@@ -146,9 +161,17 @@ body, html, #root {
   cursor: pointer;
   box-shadow: 0 2px 7px rgba(231, 76, 60, 0.4);
   transition: background-color 0.3s ease;
+
+  /* override */
+  background-color: #dc3545;
+  padding: 6px 12px;
+  border-radius: 4px;
 }
 
 .btn-logout:hover {
+  background-color: #c0392b;
+
+  /* override */
   background-color: #c0392b;
 }
 
@@ -160,6 +183,9 @@ body, html, #root {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+
+  /* override */
+  padding: 30px;
 }
 
 /* Add Customer Form */
@@ -227,6 +253,9 @@ body, html, #root {
   grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
   gap: 1.8rem;
   padding-bottom: 2rem;
+
+  /* override */
+  gap: 25px;
 }
 
 .customer-card {
@@ -237,6 +266,13 @@ body, html, #root {
   display: flex;
   flex-direction: column;
   transition: box-shadow 0.3s ease;
+
+  /* override */
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .customer-card:hover {
@@ -254,8 +290,40 @@ body, html, #root {
   font-weight: 700;
   font-size: 1.3rem;
   color: #2c3e50;
+
+  /* override */
+  color: #333;
+  margin-top: 0;
 }
 
+/* Buttons group inside customer card for design controls */
+.design-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Added spacing between buttons */
+.design-buttons button {
+  background-color: #007bff;
+  border: none;
+  padding: 8px 14px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-right: 10px; /* added margin right */
+}
+
+.design-buttons button:last-child {
+  margin-right: 0; /* remove margin for last button */
+}
+
+.design-buttons button:hover {
+  background-color: #0056b3;
+}
+
+/* Delete button */
 .btn-delete {
   background-color: #e74c3c;
   color: white;
@@ -266,6 +334,7 @@ body, html, #root {
   cursor: pointer;
   box-shadow: 0 2px 7px rgba(231, 76, 60, 0.4);
   transition: background-color 0.3s ease;
+  margin-left: 10px; /* add space between buttons if next to other buttons */
 }
 
 .btn-delete:hover {
@@ -354,34 +423,108 @@ body, html, #root {
   box-shadow: 0 0 6px #16a085aa;
 }
 
-/* Responsive */
+/* Upload area */
+.upload-area {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
+.upload-area input[type="file"] {
+  padding: 5px;
+}
+
+/* Project Details Form */
+.project-details-form {
+  margin-top: 20px;
+  padding: 15px 20px;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.project-details-form h4 {
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+
+.size-inputs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.size-inputs input {
+  flex: 1 1 100px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.btn-add-drawings {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add-drawings:hover {
+  background-color: #218838;
+}
+
+/* Responsive layout */
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
   }
+
   .sidebar {
     width: 100%;
     flex-direction: row;
     justify-content: space-between;
     padding: 1rem 1.5rem;
   }
+  
+
   .btn-add {
     margin-top: 0;
   }
+
   .main-area {
     flex: 1;
   }
+
   .top-navbar {
     flex-wrap: wrap;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
+
   .nav-links {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 10px;
   }
+
   .customer-list {
     grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .design-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .size-inputs {
+    flex-direction: column;
   }
 }

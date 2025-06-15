@@ -8,6 +8,7 @@ import VerifyOtp from './VerifyOtp';
 import DesignerDashboard from './DesignerDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import DrawingCanvasPage from "./DrawingCanvasPage";
+import ProjectDetailsPage from "./ProjectDetailsPage"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/designer" element={<DesignerDashboard />} />
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/draw/:customerId" element={<DrawingCanvasPage />} />
+        <Route path="/project-details/:customerId" element={<ProjectDetailsPage />} />
       </Routes>
     </Router>
   );
