@@ -23,31 +23,22 @@ body, html, #root {
 }
 
 /* Sidebar */
-
 .sidebar {
-  width: 250px;
-  background-color: #34495e;
+  width: 240px;
+  background-color: #2f3e46;
   color: #ecf0f1;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 1rem;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.15);
-  /* override later */
-  width: 240px;
-  background-color: #2f3e46;
   padding: 20px;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar h2 {
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 22px;
   text-align: center;
   letter-spacing: 1px;
-
-  /* override */
-  font-size: 22px;
-  margin-bottom: 20px;
 }
 
 /* Buttons */
@@ -77,16 +68,15 @@ body, html, #root {
 }
 
 /* Top Navbar */
-
 .top-navbar {
-  height: 60px;
+  height: 80px;
   background-color: #fff;
   border-bottom: 1.5px solid #e1e8f0;
   display: flex;
   align-items: center;
   padding: 0 2rem;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
   font-weight: 600;
   color: #34495e;
@@ -139,12 +129,9 @@ body, html, #root {
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 15px;
   font-weight: 600;
   color: #34495e;
-
-  /* override */
-  gap: 15px;
 }
 
 .user-name {
@@ -152,44 +139,31 @@ body, html, #root {
 }
 
 .btn-logout {
-  background-color: #e74c3c;
+  background-color: #dc3545;
   border: none;
   color: white;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 7px rgba(231, 76, 60, 0.4);
-  transition: background-color 0.3s ease;
-
-  /* override */
-  background-color: #dc3545;
   padding: 6px 12px;
   border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 7px rgba(220, 53, 69, 0.4);
+  transition: background-color 0.3s ease;
 }
 
 .btn-logout:hover {
   background-color: #c0392b;
-
-  /* override */
-  background-color: #c0392b;
 }
 
 /* Main content container */
-
 .main-content {
   flex: 1;
-  padding: 2rem 3rem;
+  padding: 30px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-
-  /* override */
-  padding: 30px;
 }
 
 /* Add Customer Form */
-
 .customer-form {
   background-color: white;
   border-radius: 10px;
@@ -247,36 +221,26 @@ body, html, #root {
 }
 
 /* Customer List */
-
 .customer-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
-  gap: 1.8rem;
-  padding-bottom: 2rem;
-
-  /* override */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 25px;
+  padding-bottom: 2rem;
 }
 
 .customer-card {
-  background-color: white;
-  border-radius: 12px;
-  padding: 1.6rem 1.8rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.3s ease;
-
-  /* override */
   background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease;
 }
 
 .customer-card:hover {
-  box-shadow: 0 6px 28px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
 }
 
 .customer-header {
@@ -289,9 +253,6 @@ body, html, #root {
 .customer-header h3 {
   font-weight: 700;
   font-size: 1.3rem;
-  color: #2c3e50;
-
-  /* override */
   color: #333;
   margin-top: 0;
 }
@@ -303,7 +264,6 @@ body, html, #root {
   margin-top: 15px;
 }
 
-/* Added spacing between buttons */
 .design-buttons button {
   background-color: #007bff;
   border: none;
@@ -312,11 +272,11 @@ body, html, #root {
   border-radius: 5px;
   cursor: pointer;
   transition: background 0.2s ease;
-  margin-right: 10px; /* added margin right */
+  margin-right: 10px;
 }
 
 .design-buttons button:last-child {
-  margin-right: 0; /* remove margin for last button */
+  margin-right: 0;
 }
 
 .design-buttons button:hover {
@@ -334,7 +294,7 @@ body, html, #root {
   cursor: pointer;
   box-shadow: 0 2px 7px rgba(231, 76, 60, 0.4);
   transition: background-color 0.3s ease;
-  margin-left: 10px; /* add space between buttons if next to other buttons */
+  margin-left: 10px;
 }
 
 .btn-delete:hover {
@@ -382,7 +342,6 @@ body, html, #root {
 }
 
 /* Status select */
-
 .customer-card select {
   width: 100%;
   padding: 8px 12px;
@@ -402,7 +361,6 @@ body, html, #root {
 }
 
 /* Note for deletion */
-
 .note-textarea {
   width: 100%;
   resize: vertical;
@@ -490,7 +448,6 @@ body, html, #root {
     justify-content: space-between;
     padding: 1rem 1.5rem;
   }
-  
 
   .btn-add {
     margin-top: 0;

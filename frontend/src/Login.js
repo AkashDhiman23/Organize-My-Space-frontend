@@ -75,7 +75,7 @@ function Login() {
           navigate("/manager");
           break;
         case "production":
-          navigate("/dashboard/production");
+          navigate("/production-dashboard");
           break;
         default:
           navigate("/dashboard");

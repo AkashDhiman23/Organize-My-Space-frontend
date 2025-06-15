@@ -15,7 +15,7 @@ const HomePage = () => {
         </div>
         <div style={styles.navLinksContainer}>
           <a href="#about" style={styles.navLink}>About</a>
-          <a href="/designer" style={styles.navLink}>Designer</a>
+          <a href="/" style={styles.navLink}>Contact</a>
           <a href="/login" style={styles.navLink}>Sign in</a>
         </div>
       </nav>
@@ -35,11 +35,11 @@ const HomePage = () => {
               title: "Effortless Task Management",
               subtitle: "Stay on top of your to-do list with ease.",
             },
-            {
-              src: "/images/banner2.png",
-              title: "Role-Based Access Control",
-              subtitle: "Assign roles and control access intelligently.",
-            },
+            // {
+            //   src: "/images/banner2.png",
+            //   title: "Role-Based Access Control",
+            //   subtitle: "Assign roles and control access intelligently.",
+            // },
             {
               src: "/images/banner3.png",
               title: "Organize Your Digital Space",

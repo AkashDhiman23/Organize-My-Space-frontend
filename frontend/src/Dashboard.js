@@ -1,4 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 import './Dashboard.css';
 
 function AdminDashboard() {
@@ -19,6 +32,7 @@ function AdminDashboard() {
 
   const [members, setMembers] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const storedName = sessionStorage.getItem('username') || 'Admin';
@@ -46,8 +60,28 @@ function AdminDashboard() {
       fetchMembers();
     } else if (activeTab === 'projects') {
       fetchCustomers();
+      fetchProjects();
+    } else if (activeTab === 'dashboard') {
+      fetchMembers();
+      fetchCustomers();
+      fetchProjects();
     }
   }, [activeTab]);
+
+  // Fetch projects example
+  const fetchProjects = async () => {
+    try {
+      // Example API - replace with your actual endpoint
+      const res = await fetch('http://localhost:8000/accounts/projects/', {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch projects');
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchCompanyDetails = async () => {
     try {
@@ -204,7 +238,7 @@ function AdminDashboard() {
     }
   };
 
-  /* ------------- render helpers ------------- */
+  /* ----------- Render Helpers ----------- */
 
   const renderCustomers = () =>
     customers.length === 0 ? (
@@ -295,19 +329,113 @@ function AdminDashboard() {
       </div>
     );
 
+  // Colors for pie chart
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+  // Generate project status data for pie chart
+  const projectStatusData = () => {
+    const statusCount = {};
+    projects.forEach((p) => {
+      statusCount[p.status] = (statusCount[p.status] || 0) + 1;
+    });
+    return Object.entries(statusCount).map(([status, count]) => ({
+      name: status,
+      value: count,
+    }));
+  };
+
+  // Sample data if no projects loaded yet
+  const sampleProjectStatusData = [
+    { name: 'Active', value: 5 },
+    { name: 'Pending', value: 3 },
+    { name: 'Completed', value: 7 },
+  ];
+
+  // Bar chart data example: Projects by month (mock data)
+  const projectsByMonth = [
+    { month: 'Jan', projects: 4 },
+    { month: 'Feb', projects: 7 },
+    { month: 'Mar', projects: 6 },
+    { month: 'Apr', projects: 8 },
+    { month: 'May', projects: 5 },
+    { month: 'Jun', projects: 9 },
+  ];
+
+  const renderDashboard = () => {
+    return (
+      <div className="dashboard-overview">
+        <h2>Dashboard Overview</h2>
+
+        <div className="stats-cards">
+          <div className="card stat-card">
+            <h3>{projects.length}</h3>
+            <p>Total Projects</p>
+          </div>
+          <div className="card stat-card">
+            <h3>{members.length}</h3>
+            <p>Total Staff Members</p>
+          </div>
+          <div className="card stat-card">
+            <h3>{customers.length}</h3>
+            <p>Total Customers</p>
+          </div>
+          <div className="card stat-card">
+            <h3>
+              {projects.reduce((acc, p) => acc + (p.progress_percentage || 0), 0) /
+                (projects.length || 1)}
+              %
+            </h3>
+            <p>Avg Project Progress</p>
+          </div>
+        </div>
+
+        <div className="charts-section">
+          <div className="chart-container">
+            <h4>Projects by Month</h4>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={projectsByMonth} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="projects" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="chart-container">
+            <h4>Project Status Distribution</h4>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={projects.length > 0 ? projectStatusData() : sampleProjectStatusData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#82ca9d"
+                  dataKey="value"
+                  label
+                >
+                  {(projects.length > 0 ? projectStatusData() : sampleProjectStatusData).map(
+                    (entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    )
+                  )}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return (
-          <div className="dashboard-overview">
-            <h2>Dashboard Overview</h2>
-            <div className="stats">
-              <div className="card">Ongoing Projects: 3</div>
-              <div className="card">New Projects: 1</div>
-              <div className="card">Total Members: {members.length}</div>
-            </div>
-          </div>
-        );
+        return renderDashboard();
       case 'add-member':
         return (
           <div className="form-section">

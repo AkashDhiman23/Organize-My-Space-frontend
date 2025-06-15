@@ -9,6 +9,8 @@ import DesignerDashboard from './DesignerDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import DrawingCanvasPage from "./DrawingCanvasPage";
 import ProjectDetailsPage from "./ProjectDetailsPage"
+import ProductionDashboard from './ProductionDashboard';
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/draw/:customerId" element={<DrawingCanvasPage />} />
         <Route path="/project-details/:customerId" element={<ProjectDetailsPage />} />
+        <Route path="/production-dashboard" element={<ProductionDashboard />} />
       </Routes>
     </Router>
   );

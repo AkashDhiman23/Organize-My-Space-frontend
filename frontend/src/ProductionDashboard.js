@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./ManagerDashboard.css";
 
-function DesignerDashboard() {
-  const [customers, setCustomers] = useState([]);
+function ProductionDashboard() {
+  const [productionOrders, setProductionOrders] = useState([]);
   const [companyDetails, setCompanyDetails] = useState({
     company_name: "",
     full_name: "",
@@ -13,20 +13,20 @@ function DesignerDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCustomers();
+    fetchProductionOrders();
     fetchCompanyDetails();
   }, []);
 
-  const fetchCustomers = async () => {
+  const fetchProductionOrders = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/accounts/all-customers/",
+        "http://localhost:8000/production/orders/", // Change to your real API endpoint
         { withCredentials: true }
       );
-      setCustomers(res.data);
+      setProductionOrders(res.data);
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch customers.");
+      alert("Failed to fetch production orders.");
     }
   };
 
@@ -46,7 +46,7 @@ function DesignerDashboard() {
   return (
     <div className="dashboard-container">
       <aside className="sidebar">
-        <h2>Designer Dashboard</h2>
+        <h2>Production Dashboard</h2>
       </aside>
 
       <main className="main-area">
@@ -73,26 +73,25 @@ function DesignerDashboard() {
 
         {/* main content */}
         <div className="main-content">
-          <section className="customer-list">
-            {customers.length === 0 && <p>No customers found.</p>}
+          <section className="production-list">
+            {productionOrders.length === 0 && <p>No production orders found.</p>}
 
-            {customers.map((customer) => (
-              <div className="customer-card" key={customer.id}>
-                <h3>{customer.name}</h3>
+            {productionOrders.map((order) => (
+              <div className="production-card" key={order.id}>
+                <h3>Order: {order.order_number || order.id}</h3>
                 <p>
-                  <strong>Email:</strong> {customer.email}
+                  <strong>Product:</strong> {order.product_name || "N/A"}
                 </p>
                 <p>
-                  <strong>Contact Number:</strong> {customer.contact_number}
+                  <strong>Quantity:</strong> {order.quantity || "N/A"}
                 </p>
                 <p>
-                  <strong>Address:</strong> {customer.address || "N/A"}
+                  <strong>Status:</strong> {order.status || "N/A"}
                 </p>
 
-                {/* ----- action buttons ----- */}
-                <div className="design-buttons">
-                  <button onClick={() => navigate(`/project-details/${customer.id}`)}>
-                    Project Details
+                <div className="action-buttons">
+                  <button onClick={() => navigate(`/production-details/${order.id}`)}>
+                    View Details
                   </button>
                 </div>
               </div>
@@ -104,4 +103,4 @@ function DesignerDashboard() {
   );
 }
 
-export default DesignerDashboard;
+export default ProductionDashboard;

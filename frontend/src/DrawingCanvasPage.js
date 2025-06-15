@@ -11,33 +11,30 @@ const TOOL_TYPES = {
   MOVE: "move",
   ERASER: "eraser",
   TRIANGLE: "triangle",
-  ELLIPSE: "ellipse",
+  MEASUREMENT: "measurement",
 };
 
 export default function DrawingCanvasPage() {
-  /* ───── routing ───── */
-  const { customerId } = useParams();            // /draw/:customerId
-  const [query]        = useSearchParams();      // ?drawingNum=2
-  const drawingNum      = query.get("drawingNum") ?? "1";
-  const navigate        = useNavigate();
+  const { customerId } = useParams();
+  const [query] = useSearchParams();
+  const drawingNum = query.get("drawingNum") ?? "1";
+  const navigate = useNavigate();
 
-  /* ───── canvas + drawing state ───── */
-  const canvasRef                 = useRef(null);
-  const [tool, setTool]           = useState(TOOL_TYPES.RECTANGLE);
-  const [shapes, setShapes]       = useState([]);
+  const canvasRef = useRef(null);
+  const [tool, setTool] = useState(TOOL_TYPES.RECTANGLE);
+  const [shapes, setShapes] = useState([]);
   const [currentShape, setCurrentShape] = useState(null);
   const [selectedShapeIndex, setSelectedShapeIndex] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  /* ───────────────────────────────────────── helpers ───────────────────────────────────────── */
+  // Local state for measurement input text
+  const [measurementInput, setMeasurementInput] = useState("");
 
-  /** low‑level util: mouse → canvas coords */
   const getCursor = (evt) => {
     const rect = canvasRef.current.getBoundingClientRect();
     return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
   };
 
-  /** erase helper: returns true if (x,y) is inside a shape  */
   const isPointInsideShape = (shape, x, y) => {
     switch (shape.type) {
       case TOOL_TYPES.RECTANGLE:
@@ -55,8 +52,12 @@ export default function DrawingCanvasPage() {
       case TOOL_TYPES.LINE: {
         const { x1, y1, x2, y2 } = shape;
         const dist =
-          Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) /
-          Math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2);
+          Math.abs(
+            (y2 - y1) * x -
+              (x2 - x1) * y +
+              x2 * y1 -
+              y2 * x1
+          ) / Math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2);
         return dist < 5;
       }
       case TOOL_TYPES.TRIANGLE: {
@@ -66,35 +67,32 @@ export default function DrawingCanvasPage() {
         const y1 = shape.y;
         const x2 = shape.x + shape.width;
         const y2 = shape.y + shape.height;
-        const area = 0.5 * (-y1 * x2 + y0 * (-x1 + x2) + y1 * x0 + y2 * (x1 - x0));
-        const s = (1 / (2 * area)) * (y0 * x2 - x0 * y2 + (y2 - y0) * x + (x0 - x2) * y);
-        const t = (1 / (2 * area)) * (x0 * y1 - y0 * x1 + (y0 - y1) * x + (x1 - x0) * y);
+        const area =
+          0.5 *
+          (-y1 * x2 + y0 * (-x1 + x2) + y1 * x0 + y2 * (x1 - x0));
+        const s =
+          (1 / (2 * area)) *
+          (y0 * x2 - x0 * y2 + (y2 - y0) * x + (x0 - x2) * y);
+        const t =
+          (1 / (2 * area)) *
+          (x0 * y1 - y0 * x1 + (y0 - y1) * x + (x1 - x0) * y);
         return s >= 0 && t >= 0 && s + t <= 1;
-      }
-      case TOOL_TYPES.ELLIPSE: {
-        const dx = x - shape.x;
-        const dy = y - shape.y;
-        return (
-          dx * dx / (shape.radiusX ** 2) + dy * dy / (shape.radiusY ** 2) <= 1
-        );
       }
       default:
         return false;
     }
   };
 
-  /** remove shapes under eraser */
   const eraseAt = (x, y) =>
     setShapes((prev) => prev.filter((s) => !isPointInsideShape(s, x, y)));
 
-  /** clear entire canvas */
   const clearCanvas = () => {
     setShapes([]);
     setCurrentShape(null);
     setSelectedShapeIndex(null);
+    setMeasurementInput("");
   };
 
-  /** draw all shapes  */
   const drawShapes = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -139,18 +137,19 @@ export default function DrawingCanvasPage() {
           ctx.closePath();
           ctx.stroke();
           break;
-        case TOOL_TYPES.ELLIPSE:
+        case TOOL_TYPES.MEASUREMENT:
           ctx.beginPath();
-          ctx.ellipse(
-            shape.x,
-            shape.y,
-            shape.radiusX,
-            shape.radiusY,
-            0,
-            0,
-            2 * Math.PI
-          );
+          ctx.moveTo(shape.x1, shape.y1);
+          ctx.lineTo(shape.x2, shape.y2);
           ctx.stroke();
+          if (shape.measurementText) {
+            const midX = (shape.x1 + shape.x2) / 2;
+            const midY = (shape.y1 + shape.y2) / 2;
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "red";
+            ctx.textAlign = "center";
+            ctx.fillText(shape.measurementText, midX, midY - 10);
+          }
           break;
         default:
           break;
@@ -159,7 +158,6 @@ export default function DrawingCanvasPage() {
     });
   };
 
-  /** live preview while drawing */
   const drawCurrentShape = () => {
     if (!currentShape) return;
     const canvas = canvasRef.current;
@@ -194,10 +192,20 @@ export default function DrawingCanvasPage() {
         ctx.closePath();
         ctx.stroke();
         break;
-      case TOOL_TYPES.ELLIPSE:
+      case TOOL_TYPES.MEASUREMENT:
         ctx.beginPath();
-        ctx.ellipse(s.x, s.y, s.radiusX, s.radiusY, 0, 0, 2 * Math.PI);
+        ctx.moveTo(s.x1, s.y1);
+        ctx.lineTo(s.x2, s.y2);
         ctx.stroke();
+        const dx = s.x2 - s.x1;
+        const dy = s.y2 - s.y1;
+        const dist = Math.sqrt(dx * dx + dy * dy).toFixed(1);
+        ctx.font = "14px Arial";
+        ctx.fillStyle = "green";
+        ctx.textAlign = "center";
+        const midX = (s.x1 + s.x2) / 2;
+        const midY = (s.y1 + s.y2) / 2;
+        ctx.fillText(`${dist}px`, midX, midY - 10);
         break;
       default:
         break;
@@ -205,14 +213,21 @@ export default function DrawingCanvasPage() {
     ctx.restore();
   };
 
-  /* redraw whenever shapes/currentShape changes */
   const redraw = () => {
     drawShapes();
     drawCurrentShape();
   };
   useEffect(redraw, [shapes, currentShape]);
 
-  /* ───── mouse events ───── */
+  // Sync measurementInput when selectedShapeIndex or shapes change
+  useEffect(() => {
+    if (selectedShapeIndex !== null && shapes[selectedShapeIndex]) {
+      setMeasurementInput(shapes[selectedShapeIndex].measurementText || "");
+    } else {
+      setMeasurementInput("");
+    }
+  }, [selectedShapeIndex, shapes]);
+
   const startDrawing = (e) => {
     const { x, y } = getCursor(e);
 
@@ -237,13 +252,18 @@ export default function DrawingCanvasPage() {
         setCurrentShape({ ...base, type: tool, radius: 0 });
         break;
       case TOOL_TYPES.LINE:
-        setCurrentShape({ type: tool, x1: x, y1: y, x2: x, y2: y });
+      case TOOL_TYPES.MEASUREMENT:
+        setCurrentShape({
+          type: tool,
+          x1: x,
+          y1: y,
+          x2: x,
+          y2: y,
+          measurementText: "",
+        });
         break;
       case TOOL_TYPES.TRIANGLE:
         setCurrentShape({ ...base, type: tool, width: 0, height: 0 });
-        break;
-      case TOOL_TYPES.ELLIPSE:
-        setCurrentShape({ ...base, type: tool, radiusX: 0, radiusY: 0 });
         break;
       default:
         break;
@@ -259,10 +279,14 @@ export default function DrawingCanvasPage() {
       setShapes((prev) => {
         const next = [...prev];
         const sh = { ...next[selectedShapeIndex] };
-        if (sh.type === TOOL_TYPES.LINE) {
-          sh.x1 += dx; sh.y1 += dy; sh.x2 += dx; sh.y2 += dy;
+        if (sh.type === TOOL_TYPES.LINE || sh.type === TOOL_TYPES.MEASUREMENT) {
+          sh.x1 += dx;
+          sh.y1 += dy;
+          sh.x2 += dx;
+          sh.y2 += dy;
         } else {
-          sh.x += dx; sh.y += dy;
+          sh.x += dx;
+          sh.y += dy;
         }
         next[selectedShapeIndex] = sh;
         return next;
@@ -278,10 +302,11 @@ export default function DrawingCanvasPage() {
     } else if (currentShape.type === TOOL_TYPES.CIRCLE) {
       const radius = Math.sqrt((x - currentShape.x) ** 2 + (y - currentShape.y) ** 2);
       setCurrentShape((prev) => ({ ...prev, radius }));
-    } else if (currentShape.type === TOOL_TYPES.LINE) {
+    } else if (
+      currentShape.type === TOOL_TYPES.LINE ||
+      currentShape.type === TOOL_TYPES.MEASUREMENT
+    ) {
       setCurrentShape((prev) => ({ ...prev, x2: x, y2: y }));
-    } else if (currentShape.type === TOOL_TYPES.ELLIPSE) {
-      setCurrentShape((prev) => ({ ...prev, radiusX: Math.abs(x - prev.x), radiusY: Math.abs(y - prev.y) }));
     }
   };
 
@@ -292,9 +317,9 @@ export default function DrawingCanvasPage() {
     setIsDrawing(false);
     setCurrentShape(null);
     setSelectedShapeIndex(null);
+    setMeasurementInput(""); // clear input on drawing end or deselect
   };
 
-  /* ───── pdf upload ───── */
   const saveDrawingAsPDF = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return alert("Canvas unavailable");
@@ -311,10 +336,11 @@ export default function DrawingCanvasPage() {
       const form = new FormData();
       form.append("file", blob, `drawing${drawingNum}.pdf`);
 
-      const res = await fetch(
-        `/accounts/customers/${customerId}/project/drawing/`,
-        { method: "POST", body: form, credentials: "include" }
-      );
+      const res = await fetch(`/accounts/customers/${customerId}/project/drawing/`, {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      });
       if (!res.ok) throw new Error(`upload failed (${res.status})`);
       alert("Drawing saved!");
       navigate(`/project-details/${customerId}`);
@@ -324,29 +350,30 @@ export default function DrawingCanvasPage() {
     }
   };
 
-  /* ───── cursor style ───── */
-  const cursor = tool === TOOL_TYPES.ERASER ? "crosshair"
-               : tool === TOOL_TYPES.MOVE   ? (selectedShapeIndex !== null ? "move" : "default")
-               : "crosshair";
+  const cursor =
+    tool === TOOL_TYPES.ERASER
+      ? "crosshair"
+      : tool === TOOL_TYPES.MOVE
+      ? selectedShapeIndex !== null
+        ? "move"
+        : "default"
+      : "crosshair";
 
-  /* ───── JSX ───── */
   return (
     <div className="designer-dashboard">
       <nav className="topnavbar">
         <h1 className="navbar-title">
-          Drawing #{drawingNum} for Customer #{customerId}
+          Drawing #{drawingNum} for Customer #{customerId}
         </h1>
       </nav>
 
-      {/* left sidebar */}
       <aside className="sidebar left-sidebar">
         <h2>Actions</h2>
         <button onClick={clearCanvas}>Clear Canvas</button>
         <button onClick={saveDrawingAsPDF}>Save Drawing</button>
-        <button onClick={() => navigate(-1)}>← Back</button>
+        <button onClick={() => navigate(-1)}>← Back</button>
       </aside>
 
-      {/* canvas */}
       <section className="canvas-wrapper">
         <canvas
           ref={canvasRef}
@@ -359,9 +386,35 @@ export default function DrawingCanvasPage() {
           onMouseUp={endAction}
           onMouseLeave={endAction}
         />
+        {selectedShapeIndex !== null && shapes[selectedShapeIndex]?.type === TOOL_TYPES.MEASUREMENT && (
+          <div className="measurement-input" style={{ marginTop: "10px" }}>
+            <label>
+              Custom Measurement Text:
+              <input
+                type="text"
+                value={measurementInput}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  setMeasurementInput(text);
+                  setShapes((prev) => {
+                    const next = [...prev];
+                    if (next[selectedShapeIndex]) {
+                      next[selectedShapeIndex] = {
+                        ...next[selectedShapeIndex],
+                        measurementText: text,
+                      };
+                    }
+                    return next;
+                  });
+                }}
+                placeholder="Enter measurement or label"
+                style={{ marginLeft: "10px" }}
+              />
+            </label>
+          </div>
+        )}
       </section>
 
-      {/* right sidebar */}
       <aside className="sidebar right-sidebar">
         <h2>Tools</h2>
         <ul className="tool-list">
@@ -373,12 +426,12 @@ export default function DrawingCanvasPage() {
               onClick={() => setTool(t)}
             >
               {t === TOOL_TYPES.RECTANGLE && "▭"}
-              {t === TOOL_TYPES.CIRCLE    && "●"}
-              {t === TOOL_TYPES.LINE      && "―"}
-              {t === TOOL_TYPES.TRIANGLE  && "▲"}
-              {t === TOOL_TYPES.ELLIPSE   && "⬭"}
-              {t === TOOL_TYPES.MOVE      && "↔"}
-              {t === TOOL_TYPES.ERASER    && "🩹"}
+              {t === TOOL_TYPES.CIRCLE && "●"}
+              {t === TOOL_TYPES.LINE && "―"}
+              {t === TOOL_TYPES.TRIANGLE && "▲"}
+              {t === TOOL_TYPES.MOVE && "↔"}
+              {t === TOOL_TYPES.ERASER && "🩹"}
+              {t === TOOL_TYPES.MEASUREMENT && "📏"}
             </li>
           ))}
         </ul>
