@@ -248,7 +248,7 @@ function AdminDashboard() {
         <table className="table table-hover table-bordered align-middle mb-0 bg-white">
           <thead className="table-primary text-primary fw-semibold">
             <tr>
-              <th>#</th>
+              <th>Sr no</th>
               <th>Name</th>
               <th>Email</th>
               <th>Manager</th>
@@ -309,7 +309,7 @@ function AdminDashboard() {
         <table className="table table-hover table-bordered align-middle mb-0 bg-white">
           <thead className="table-secondary text-secondary fw-semibold">
             <tr>
-              <th>#</th>
+              <th>Sr no</th>
               <th>Full Name</th>
               <th>Email</th>
               <th>Role</th>

@@ -3,7 +3,6 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import "./DrawingCanvasPage.css";
 
-/* ───── tool constants ───── */
 const TOOL_TYPES = {
   RECTANGLE: "rectangle",
   CIRCLE: "circle",
@@ -26,8 +25,6 @@ export default function DrawingCanvasPage() {
   const [currentShape, setCurrentShape] = useState(null);
   const [selectedShapeIndex, setSelectedShapeIndex] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
-
-  // Local state for measurement input text
   const [measurementInput, setMeasurementInput] = useState("");
 
   const getCursor = (evt) => {
@@ -38,12 +35,7 @@ export default function DrawingCanvasPage() {
   const isPointInsideShape = (shape, x, y) => {
     switch (shape.type) {
       case TOOL_TYPES.RECTANGLE:
-        return (
-          x >= shape.x &&
-          x <= shape.x + shape.width &&
-          y >= shape.y &&
-          y <= shape.y + shape.height
-        );
+        return x >= shape.x && x <= shape.x + shape.width && y >= shape.y && y <= shape.y + shape.height;
       case TOOL_TYPES.CIRCLE: {
         const dx = x - shape.x;
         const dy = y - shape.y;
@@ -51,31 +43,16 @@ export default function DrawingCanvasPage() {
       }
       case TOOL_TYPES.LINE: {
         const { x1, y1, x2, y2 } = shape;
-        const dist =
-          Math.abs(
-            (y2 - y1) * x -
-              (x2 - x1) * y +
-              x2 * y1 -
-              y2 * x1
-          ) / Math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2);
+        const dist = Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2);
         return dist < 5;
       }
       case TOOL_TYPES.TRIANGLE: {
-        const x0 = shape.x;
-        const y0 = shape.y + shape.height;
-        const x1 = shape.x + shape.width / 2;
-        const y1 = shape.y;
-        const x2 = shape.x + shape.width;
-        const y2 = shape.y + shape.height;
-        const area =
-          0.5 *
-          (-y1 * x2 + y0 * (-x1 + x2) + y1 * x0 + y2 * (x1 - x0));
-        const s =
-          (1 / (2 * area)) *
-          (y0 * x2 - x0 * y2 + (y2 - y0) * x + (x0 - x2) * y);
-        const t =
-          (1 / (2 * area)) *
-          (x0 * y1 - y0 * x1 + (y0 - y1) * x + (x1 - x0) * y);
+        const x0 = shape.x, y0 = shape.y + shape.height;
+        const x1 = shape.x + shape.width / 2, y1 = shape.y;
+        const x2 = shape.x + shape.width, y2 = shape.y + shape.height;
+        const area = 0.5 * (-y1 * x2 + y0 * (-x1 + x2) + y1 * x0 + y2 * (x1 - x0));
+        const s = (1 / (2 * area)) * (y0 * x2 - x0 * y2 + (y2 - y0) * x + (x0 - x2) * y);
+        const t = (1 / (2 * area)) * (x0 * y1 - y0 * x1 + (y0 - y1) * x + (x1 - x0) * y);
         return s >= 0 && t >= 0 && s + t <= 1;
       }
       default:
@@ -97,7 +74,6 @@ export default function DrawingCanvasPage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -219,7 +195,6 @@ export default function DrawingCanvasPage() {
   };
   useEffect(redraw, [shapes, currentShape]);
 
-  // Sync measurementInput when selectedShapeIndex or shapes change
   useEffect(() => {
     if (selectedShapeIndex !== null && shapes[selectedShapeIndex]) {
       setMeasurementInput(shapes[selectedShapeIndex].measurementText || "");
@@ -230,7 +205,6 @@ export default function DrawingCanvasPage() {
 
   const startDrawing = (e) => {
     const { x, y } = getCursor(e);
-
     if (tool === TOOL_TYPES.MOVE) {
       const idx = shapes.findIndex((sh) => isPointInsideShape(sh, x, y));
       setSelectedShapeIndex(idx !== -1 ? idx : null);
@@ -253,14 +227,7 @@ export default function DrawingCanvasPage() {
         break;
       case TOOL_TYPES.LINE:
       case TOOL_TYPES.MEASUREMENT:
-        setCurrentShape({
-          type: tool,
-          x1: x,
-          y1: y,
-          x2: x,
-          y2: y,
-          measurementText: "",
-        });
+        setCurrentShape({ type: tool, x1: x, y1: y, x2: x, y2: y, measurementText: "" });
         break;
       case TOOL_TYPES.TRIANGLE:
         setCurrentShape({ ...base, type: tool, width: 0, height: 0 });
@@ -302,10 +269,7 @@ export default function DrawingCanvasPage() {
     } else if (currentShape.type === TOOL_TYPES.CIRCLE) {
       const radius = Math.sqrt((x - currentShape.x) ** 2 + (y - currentShape.y) ** 2);
       setCurrentShape((prev) => ({ ...prev, radius }));
-    } else if (
-      currentShape.type === TOOL_TYPES.LINE ||
-      currentShape.type === TOOL_TYPES.MEASUREMENT
-    ) {
+    } else if ([TOOL_TYPES.LINE, TOOL_TYPES.MEASUREMENT].includes(currentShape.type)) {
       setCurrentShape((prev) => ({ ...prev, x2: x, y2: y }));
     }
   };
@@ -317,7 +281,7 @@ export default function DrawingCanvasPage() {
     setIsDrawing(false);
     setCurrentShape(null);
     setSelectedShapeIndex(null);
-    setMeasurementInput(""); // clear input on drawing end or deselect
+    setMeasurementInput("");
   };
 
   const saveDrawingAsPDF = async () => {
@@ -335,12 +299,16 @@ export default function DrawingCanvasPage() {
     try {
       const form = new FormData();
       form.append("file", blob, `drawing${drawingNum}.pdf`);
+      form.append("drawing_num", drawingNum); // ✅ added drawing_num
 
-      const res = await fetch(`/accounts/customers/${customerId}/project/drawing/`, {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
+      const res = await fetch(
+        `http://localhost:8000/accounts/customers/${customerId}/project/drawing/`,
+        {
+          method: "POST",
+          body: form,
+          credentials: "include",
+        }
+      );
       if (!res.ok) throw new Error(`upload failed (${res.status})`);
       alert("Drawing saved!");
       navigate(`/project-details/${customerId}`);

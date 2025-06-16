@@ -67,27 +67,31 @@ function ProjectDetail() {
       return;
     }
 
-    const body = new FormData();
-    body.append("length_ft", size.length);
-    body.append("width_ft", size.width);
-    body.append("depth_in", size.depth || 0);
-    body.append("material_name", size.materialName);
-    body.append("body_color", size.bodyColor);
-    body.append("door_color", size.doorColor);
-    body.append("body_material", size.bodyMaterial);
-    body.append("door_material", size.doorMaterial);
+    const body = {
+      length_ft: size.length,
+      width_ft: size.width,
+      depth_in: size.depth || 0,
+      material_name: size.materialName,
+      body_color: size.bodyColor,
+      door_color: size.doorColor,
+      body_material: size.bodyMaterial,
+      door_material: size.doorMaterial
+    };
 
     try {
       await axios.post(
         `http://localhost:8000/accounts/customers/${customerId}/project/`,
         body,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" }
+        }
       );
       alert("Project info saved!");
       goBack();
     } catch (err) {
       console.error("save error:", err);
-      alert("Failed to save project info.");
+      alert(err.response?.data?.detail || "Failed to save project info.");
     }
   };
 
@@ -95,16 +99,13 @@ function ProjectDetail() {
 
   return (
     <div className="project-detail-page">
-
-      <h2>
-        Project Details – {customer?.name || "Customer"}
-      </h2>
+      <h2>Project Details – {customer?.name || "Customer"}</h2>
 
       {customer && (
         <div className="customer-info-card">
           <p><strong>Name:</strong> {customer.name}</p>
           <p><strong>Email:</strong> {customer.email}</p>
-          <p><strong>Phone:</strong> {customer.contact_number || "—"}</p>
+          <p><strong>Phone:</strong> {customer.contact_number}</p>
         </div>
       )}
 
@@ -117,14 +118,12 @@ function ProjectDetail() {
             value={size.length}
             onChange={e => setSize({ ...size, length: e.target.value })}
           />
-
           <label>Width (ft)</label>
           <input
             type="number"
             value={size.width}
             onChange={e => setSize({ ...size, width: e.target.value })}
           />
-
           <label>Depth (inch)</label>
           <input
             type="number"
@@ -151,7 +150,6 @@ function ProjectDetail() {
             value={size.bodyColor}
             onChange={e => setSize({ ...size, bodyColor: e.target.value })}
           />
-
           <label>Door Color</label>
           <input
             type="text"
@@ -168,7 +166,6 @@ function ProjectDetail() {
             value={size.bodyMaterial}
             onChange={e => setSize({ ...size, bodyMaterial: e.target.value })}
           />
-
           <label>Door Material</label>
           <input
             type="text"
@@ -179,7 +176,7 @@ function ProjectDetail() {
       </div>
 
       <p><strong>Square Feet:</strong> {squareFeet}</p>
-      <p><strong>Drawings added:</strong> {drawingsCount} (need 2–4)</p>
+      <p><strong>Drawings added:</strong> {drawingsCount} (need 2–4)</p>
 
       <button
         className="add-drawing-btn"
@@ -192,7 +189,6 @@ function ProjectDetail() {
       </button>
 
       <button className="save-btn" onClick={saveProject}>Save Project</button>
-
       <button className="back-btn" onClick={goBack}>← Back</button>
     </div>
   );
