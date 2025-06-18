@@ -1,0 +1,581 @@
+/* Container & layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 20px;
+  width: 250px;
+  flex-shrink: 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-title {
+  font-size: 20px;
+  margin:10px;
+  
+}
+
+.sidebar-divider {
+  border-color: #34495e;
+  margin: 10px 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding-left: 0;
+}
+
+.sidebar-menu .nav-item {
+  padding: 15px 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu .nav-item:hover,
+.sidebar-menu .nav-item.active {
+  color: #00bfff;
+  margin:5px;
+  border-left: 4px solid #00bfff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Main area */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top navbar */
+.top-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+}
+
+.company-logo {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #34495e;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  cursor: pointer;
+  padding: 5px 10px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: normal;
+  border-bottom: none;
+  transition: all 0.3s ease;
+}
+
+.nav-link.active {
+  color: #007bff;
+  font-weight: 600;
+  border-bottom: 3px solid #007bff;
+}
+
+/* User profile dropdown */
+.user-profile-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-button {
+  background: none;
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #34495e;
+}
+
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background-color: #fff;
+  border: 1px solid #ddd;
+ 
+  min-width: 170px;
+  z-index: 10;
+  border-radius: 4px;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #656768;
+ 
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Main content */
+.main-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.customer-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.customer-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+  }
+  .main-area {
+    width: 100%;
+  }
+}
+
+
+
+.clients-container {
+  display: flex;
+  gap: 2rem;
+}
+
+
+.clients-sidebar {
+  width: 280px;
+  background-color: #f8f9fa; /* soft light gray */
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.5rem 2rem 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.summary-row {
+
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  margin:5px;
+}
+
+.summary-card {
+  flex: 1 1 220px; /* slightly smaller min width */
+  padding: 1rem 1.2rem; /* compact padding */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  background-color: #f9f9f9;
+  transition: box-shadow 0.2s ease;
+}
+
+.summary-card h5 {
+  color: #6c757d;
+  margin-bottom: 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.summary-card p {
+
+  font-size: 1.6rem; /* smaller number font */
+  font-weight: 700;
+ 
+  color: #212529;
+}
+
+.summary-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Optional: specific background styles */
+.summary-card.total-clients {
+  background-color: #f3f4f6;
+}
+
+.summary-card.new-clients {
+  background-color: #fef6e4;
+}
+.search-input {
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 1.5px solid #ced4da;
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+  color: #212529;
+}
+
+.search-input::placeholder {
+  color: #868e96; /* medium gray */
+  font-style: italic;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #adb5bd;
+  box-shadow: 0 0 6px rgba(173, 181, 189, 0.5);
+  background-color: #fefefe;
+}
+
+.filter-info {
+  font-size: 0.875rem;
+  color: #6c757d; /* muted text */
+  margin-top: auto;
+  user-select: none;
+}
+
+/* Right side content */
+.clients-main {
+  flex-grow: 1;
+}
+
+/* Summary cards container */
+.summary-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* Summary card base style */
+.summary-card {
+  background-color: #f8f9fa; /* default light */
+  color: #212529;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Table overrides */
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.1);
+}
+
+.table thead {
+  background-color: #f1f3f5;
+  color: #495057;
+  font-weight: 600;
+}
+
+
+
+
+/* customer card wrapper */
+.customer-card {
+  background: #fff;
+  border: 1px solid #dfe1e5;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: 20px;
+}
+
+/* button container */
+.design-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* ---------- Customer list layout ------------------------------ */
+
+.customer-list-section {
+  margin-top: 24px;
+}
+
+.customer-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.customer-search {
+  flex: 1 1 280px;
+  max-width: 320px;
+}
+
+.customer-sort {
+  width: 200px;
+}
+
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.customer-table thead {
+  background-color: #f7f7f7;
+}
+
+.customer-table th,
+.customer-table td {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.customer-table th {
+  font-weight: 600;
+}
+
+.customer-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.customer-table td button {
+  margin-right: 8px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000;
+  background: transparent;
+  border: 2px solid #000;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.customer-table td button:hover {
+  background: #333;
+  color: #fff;
+}
+
+.customer-table td button:last-child {
+  margin-right: 0;
+}
+
+/* Responsive: stack inputs */
+@media (max-width: 576px) {
+  .customer-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .customer-sort {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .customer-table th,
+  .customer-table td {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+  .customer-table td button {
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
+}
+
+
+
+/* Remove button backgrounds and style as links */
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #000;
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  user-select: none;
+  font-size: 0.95rem;
+  border-radius: 4px;
+}
+
+.btn-link:hover,
+.btn-link:focus {
+  color: #333;
+  outline: none;
+  text-decoration: underline;
+}
+
+.btn-icon {
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+
+/* Optional: give Send to Production a subtle difference on hover */
+.btn-send:hover {
+  color: #d22;
+}
+
+.customer-sort {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 180px;
+  appearance: none; 
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='%23666' d='M0 0l5 6 5-6z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+}
+
+/* Focus state */
+.customer-sort:focus {
+  outline: none;
+  border-color: #666;
+  box-shadow: 0 0 6px rgba(100, 100, 100, 0.3);
+}
+
+/* Modal Overlay: fullscreen translucent background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Modal Box: white card with padding and rounded corners */
+.modal-box {
+  background-color: #fff;
+  padding: 24px 32px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Modal Title */
+.modal-box h4 {
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Modal Message */
+.modal-box p {
+  margin-bottom: 24px;
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Buttons container */
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Base button style */
+.modal-buttons .btn {
+  min-width: 100px;
+  padding: 10px 16px;
+  border-radius: 5px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+}
+
+/* Confirm (Yes) button: green */
+.btn-confirm {
+  background-color: #28a745; /* Bootstrap green */
+  color: white;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+/* Cancel (No) button: gray */
+.btn-cancel {
+  background-color: #6c757d; /* Bootstrap secondary gray */
+  color: white;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+/* Disabled button style */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+
+

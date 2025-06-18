@@ -16,46 +16,108 @@ function ProjectDetail() {
     bodyColor: "",
     doorColor: "",
     bodyMaterial: "",
-    doorMaterial: ""
+    doorMaterial: "",
   });
+
   const [drawingsCount, setDrawingsCount] = useState(0);
-  const squareFeet = (+size.length || 0) * (+size.width || 0);
+  const [drawings, setDrawings] = useState([]);
+  const [loadingDrawings, setLoadingDrawings] = useState(true);
+
+  // Calculate square feet safely
+  const squareFeet =
+    (parseFloat(size.length) || 0) * (parseFloat(size.width) || 0);
+  const canAddDrawing = drawingsCount < 4;
 
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get(
+        const { data: cust } = await axios.get(
           `http://localhost:8000/accounts/customers/${customerId}/`,
           { withCredentials: true }
         );
-        setCustomer(data);
+        setCustomer(cust);
 
-        const res = await axios.get(
+        const { data: proj } = await axios.get(
           `http://localhost:8000/accounts/customers/${customerId}/project/`,
           { withCredentials: true }
         );
-        const d = res.data;
-        setSize(prev => ({
-          ...prev,
-          length: d.length_ft || "",
-          width: d.width_ft || "",
-          depth: d.depth_in || "",
-          materialName: d.material_name || "",
-          bodyColor: d.body_color || "",
-          doorColor: d.door_color || "",
-          bodyMaterial: d.body_material || "",
-          doorMaterial: d.door_material || ""
-        }));
-        setDrawingsCount(d.drawings_count || 0);
+
+        setSize({
+          length: proj.length_ft ?? "",
+          width: proj.width_ft ?? "",
+          depth: proj.depth_in ?? "",
+          materialName: proj.material_name ?? "",
+          bodyColor: proj.body_color ?? "",
+          doorColor: proj.door_color ?? "",
+          bodyMaterial: proj.body_material ?? "",
+          doorMaterial: proj.door_material ?? "",
+        });
       } catch (err) {
         console.error("fetch error:", err);
       }
-    })();
+    };
+    fetchData();
+  }, [customerId]);
+
+  useEffect(() => {
+    const fetchDrawings = async () => {
+      try {
+        setLoadingDrawings(true);
+        const { data } = await axios.get(
+          `http://localhost:8000/accounts/customers/${customerId}/project/drawings/`,
+          { withCredentials: true }
+        );
+
+        const BASE = "http://localhost:8000";
+
+        const normalizedDrawings = data.map((d) => {
+          const file = d.file.startsWith("http")
+            ? d.file
+            : `${BASE}/media/${d.file.replace(/^\/?/, "")}`;
+          return {
+            ...d,
+            file,
+            image_url:
+              /\.(jpe?g|png)$/i.test(file) // regex to check extension
+                ? file
+                : null,
+          };
+        });
+
+        setDrawings(normalizedDrawings);
+        setDrawingsCount(normalizedDrawings.length);
+      } catch (err) {
+        console.error("Error fetching drawings:", err);
+        setDrawings([]);
+        setDrawingsCount(0);
+      } finally {
+        setLoadingDrawings(false);
+      }
+    };
+
+    fetchDrawings();
   }, [customerId]);
 
   const goBack = () => navigate(-1);
+
   const goToCanvas = () =>
     navigate(`/draw/${customerId}?drawingNum=${drawingsCount + 1}`);
+
+  const handleChange = (key, value) => {
+    // For number inputs, make sure to store empty string or numbers only
+    if (["length", "width", "depth"].includes(key)) {
+      if (value === "") {
+        setSize((prev) => ({ ...prev, [key]: "" }));
+      } else {
+        const num = Number(value);
+        if (!isNaN(num)) {
+          setSize((prev) => ({ ...prev, [key]: num }));
+        }
+      }
+    } else {
+      setSize((prev) => ({ ...prev, [key]: value }));
+    }
+  };
 
   const saveProject = async () => {
     if (!size.length || !size.width) {
@@ -67,129 +129,216 @@ function ProjectDetail() {
       return;
     }
 
-    const body = {
-      length_ft: size.length,
-      width_ft: size.width,
-      depth_in: size.depth || 0,
-      material_name: size.materialName,
-      body_color: size.bodyColor,
-      door_color: size.doorColor,
-      body_material: size.bodyMaterial,
-      door_material: size.doorMaterial
-    };
+    const body = new FormData();
+    body.append("length_ft", size.length);
+    body.append("width_ft", size.width);
+    body.append("depth_in", size.depth || 0);
+    body.append("material_name", size.materialName);
+    body.append("body_color", size.bodyColor);
+    body.append("door_color", size.doorColor);
+    body.append("body_material", size.bodyMaterial);
+    body.append("door_material", size.doorMaterial);
 
     try {
+      // Consider using PUT if this is an update
       await axios.post(
         `http://localhost:8000/accounts/customers/${customerId}/project/`,
         body,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" }
-        }
+        { withCredentials: true }
       );
       alert("Project info saved!");
       goBack();
     } catch (err) {
       console.error("save error:", err);
-      alert(err.response?.data?.detail || "Failed to save project info.");
+      alert("Failed to save project info.");
     }
   };
 
-  const canAddDrawing = drawingsCount < 4;
+  // Destructure for cleaner JSX
+  const {
+    length,
+    width,
+    depth,
+    materialName,
+    bodyColor,
+    doorColor,
+    bodyMaterial,
+    doorMaterial,
+  } = size;
 
   return (
     <div className="project-detail-page">
-      <h2>Project Details – {customer?.name || "Customer"}</h2>
+      <div className="pd-header-row">
+        <button className="back-btn small" onClick={goBack}>
+          <i className="bi bi-arrow-left-short" /> Back
+        </button>
 
-      {customer && (
-        <div className="customer-info-card">
-          <p><strong>Name:</strong> {customer.name}</p>
-          <p><strong>Email:</strong> {customer.email}</p>
-          <p><strong>Phone:</strong> {customer.contact_number}</p>
-        </div>
-      )}
+        <h2 className="customer-name-header">
+          Customer – {customer?.name || "Customer"}
+        </h2>
 
-      <div className="size-grid">
-        <div className="form-section">
-          <h4>Project Dimensions</h4>
-          <label>Length (ft)</label>
-          <input
-            type="number"
-            value={size.length}
-            onChange={e => setSize({ ...size, length: e.target.value })}
-          />
-          <label>Width (ft)</label>
-          <input
-            type="number"
-            value={size.width}
-            onChange={e => setSize({ ...size, width: e.target.value })}
-          />
-          <label>Depth (inch)</label>
-          <input
-            type="number"
-            value={size.depth}
-            onChange={e => setSize({ ...size, depth: e.target.value })}
-          />
-        </div>
-
-        <div className="form-section">
-          <h4>Material Details</h4>
-          <label>Material Name</label>
-          <input
-            type="text"
-            value={size.materialName}
-            onChange={e => setSize({ ...size, materialName: e.target.value })}
-          />
-        </div>
-
-        <div className="form-section">
-          <h4>Colors</h4>
-          <label>Body Color</label>
-          <input
-            type="text"
-            value={size.bodyColor}
-            onChange={e => setSize({ ...size, bodyColor: e.target.value })}
-          />
-          <label>Door Color</label>
-          <input
-            type="text"
-            value={size.doorColor}
-            onChange={e => setSize({ ...size, doorColor: e.target.value })}
-          />
-        </div>
-
-        <div className="form-section">
-          <h4>Material Types</h4>
-          <label>Body Material</label>
-          <input
-            type="text"
-            value={size.bodyMaterial}
-            onChange={e => setSize({ ...size, bodyMaterial: e.target.value })}
-          />
-          <label>Door Material</label>
-          <input
-            type="text"
-            value={size.doorMaterial}
-            onChange={e => setSize({ ...size, doorMaterial: e.target.value })}
-          />
-        </div>
+        <span className="drawings-count">{drawingsCount}/4 drawings</span>
       </div>
 
-      <p><strong>Square Feet:</strong> {squareFeet}</p>
-      <p><strong>Drawings added:</strong> {drawingsCount} (need 2–4)</p>
+      <div className="pd-main-grid">
+        <div className="pd-form">
+          {customer && (
+            <div className="cust-card mb-3">
+              <p>
+                <strong>Name:</strong> {customer.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {customer.email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {customer.contact_number}
+              </p>
+            </div>
+          )}
 
-      <button
-        className="add-drawing-btn"
-        onClick={canAddDrawing ? goToCanvas : undefined}
-        disabled={!canAddDrawing}
-      >
-        {canAddDrawing
-          ? drawingsCount === 0 ? "Add Drawing" : "Add Another Drawing"
-          : "Maximum of 4 drawings"}
-      </button>
+          <section className="form-section">
+            <h4>Dimensions</h4>
+            <div className="two-col">
+              <label htmlFor="length">Height (ft)</label>
+              <input
+                id="length"
+                type="number"
+                value={length}
+                onChange={(e) => handleChange("length", e.target.value)}
+              />
 
-      <button className="save-btn" onClick={saveProject}>Save Project</button>
-      <button className="back-btn" onClick={goBack}>← Back</button>
+              <label htmlFor="width">Width (ft)</label>
+              <input
+                id="width"
+                type="number"
+                value={width}
+                onChange={(e) => handleChange("width", e.target.value)}
+              />
+
+              <label htmlFor="depth">Depth (in)</label>
+              <input
+                id="depth"
+                type="number"
+                value={depth}
+                onChange={(e) => handleChange("depth", e.target.value)}
+              />
+            </div>
+          </section>
+
+          <section className="form-section">
+            <h4>Material</h4>
+            <label htmlFor="materialName">Material Name</label>
+            <input
+              id="materialName"
+              type="text"
+              value={materialName}
+              onChange={(e) => handleChange("materialName", e.target.value)}
+            />
+
+            <div className="two-col">
+              <label htmlFor="bodyColor">Body Colour</label>
+              <input
+                id="bodyColor"
+                type="text"
+                value={bodyColor}
+                onChange={(e) => handleChange("bodyColor", e.target.value)}
+              />
+
+              <label htmlFor="doorColor">Door Colour</label>
+              <input
+                id="doorColor"
+                type="text"
+                value={doorColor}
+                onChange={(e) => handleChange("doorColor", e.target.value)}
+              />
+            </div>
+
+            <div className="two-col">
+              <label htmlFor="bodyMaterial">Body Material</label>
+              <input
+                id="bodyMaterial"
+                type="text"
+                value={bodyMaterial}
+                onChange={(e) => handleChange("bodyMaterial", e.target.value)}
+              />
+
+              <label htmlFor="doorMaterial">Door Material</label>
+              <input
+                id="doorMaterial"
+                type="text"
+                value={doorMaterial}
+                onChange={(e) => handleChange("doorMaterial", e.target.value)}
+              />
+            </div>
+          </section>
+
+          <p className="mt-2">
+            <strong>Sq ft:</strong> {squareFeet}
+          </p>
+
+          <div className="pd-buttons">
+            <button
+              className="btn-dark"
+              disabled={!canAddDrawing}
+              onClick={goToCanvas}
+              type="button"
+            >
+              {canAddDrawing
+                ? drawingsCount === 0
+                  ? "Add Drawing"
+                  : "Add Another Drawing"
+                : "4 Drawings Max"}
+            </button>
+            <button className="btn-primary" onClick={saveProject} type="button">
+              Save Project
+            </button>
+          </div>
+
+          <p className="min-note">* Minimum 2 drawings required to save</p>
+        </div>
+
+        <aside className="pd-drawings">
+          <h4>Drawings</h4>
+
+          {loadingDrawings ? (
+            <p className="text-muted">Loading…</p>
+          ) : drawingsCount === 0 ? (
+            <p className="text-muted">No drawings added yet.</p>
+          ) : (
+            <div className="draw-grid">
+              {drawings.map((d) => (
+                <div key={d.id} className="draw-card">
+                  {d.image_url ? (
+                    <img src={d.image_url} alt={`Drawing ${d.drawing_num}`} />
+                  ) : (
+                    <i className="bi bi-file-earmark-text display-6 text-secondary" />
+                  )}
+
+                  <div className="draw-links">
+                    <a
+                      href={d.file}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="d-flex align-items-center gap-1"
+                    >
+                      <i className="bi bi-eye" />
+                      View Drawing {d.drawing_num}
+                    </a>
+                    <a
+                      href={d.file}
+                      download
+                      className="d-flex align-items-center gap-1"
+                    >
+                      <i className="bi bi-download" />
+                      Download
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

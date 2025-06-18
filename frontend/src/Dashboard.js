@@ -14,9 +14,15 @@ import {
 } from 'recharts';
 import './Dashboard.css';
 
+
+
+ 
+
 function AdminDashboard() {
+   const [membersOpen, setMembersOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [username, setUsername] = useState('');
+const [companyLogo, setCompanyLogo] = useState(null);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -351,7 +357,7 @@ function AdminDashboard() {
     { name: 'Completed', value: 7 },
   ];
 
-  // Bar chart data example: Projects by month (mock data)
+  // Bar chart data
   const projectsByMonth = [
     { month: 'Jan', projects: 4 },
     { month: 'Feb', projects: 7 },
@@ -359,6 +365,12 @@ function AdminDashboard() {
     { month: 'Apr', projects: 8 },
     { month: 'May', projects: 5 },
     { month: 'Jun', projects: 9 },
+    { month: 'Jul', projects: 0 },
+    { month: 'Aug', projects: 0 },
+    { month: 'Sept', projects: 0 },
+    { month: 'Oct', projects: 0 },
+    { month: 'Nov', projects: 0 },
+    { month: 'Dec', projects: 0 },
   ];
 
   const renderDashboard = () => {
@@ -524,6 +536,11 @@ function AdminDashboard() {
                 required
                 disabled={loading}
               />
+              <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setCompanyLogo(e.target.files[0])}
+/>
               <button type="submit" disabled={loading}>
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>
@@ -538,40 +555,86 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard">
-      <aside className="sidebar">
-        <h1>Admin</h1>
-        <nav>
-          <ul>
-            <li
-              className={activeTab === 'dashboard' ? 'active' : ''}
-              onClick={() => setActiveTab('dashboard')}
+        <aside className="sidebar">
+      <h1>Admin Dashboard</h1>
+      <nav>
+        <ul>
+          <li
+            className={activeTab === "dashboard" ? "active" : ""}
+            onClick={() => setActiveTab("dashboard")}
+            style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+          >
+            <i className="bi bi-speedometer2" style={{ marginRight: 8 }}></i>
+            Dashboard
+          </li>
+
+          <li>
+            <div
+              className={`dropdown-header ${membersOpen ? "active" : ""}`}
+              onClick={() => setMembersOpen(!membersOpen)}
+              style={{
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                userSelect: "none",
+              }}
             >
-              Dashboard
-            </li>
-            <li
-              className={activeTab === 'add-member' ? 'active' : ''}
-              onClick={() => setActiveTab('add-member')}
-            >
-              Add Member
-            </li>
-            <li
-              className={activeTab === 'projects' ? 'active' : ''}
-              onClick={() => setActiveTab('projects')}
-            >
-              Projects
-            </li>
-            <li
-              className={activeTab === 'settings' ? 'active' : ''}
-              onClick={() => setActiveTab('settings')}
-            >
-              Settings
-            </li>
-            <li onClick={handleLogout} style={{ cursor: 'pointer' }}>
-              Logout
-            </li>
-          </ul>
-        </nav>
-      </aside>
+              <i className="bi bi-people" style={{ marginRight: 8 }}></i>
+              Members
+              <span style={{ marginLeft: "auto" }}>
+                {membersOpen ? <i className="bi bi-caret-up-fill"></i> : <i className="bi bi-caret-down-fill"></i>}
+              </span>
+            </div>
+            {membersOpen && (
+              <ul className="dropdown-menu" style={{ listStyle: "none", paddingLeft: 20 }}>
+                <li
+                  className={activeTab === "view-members" ? "active" : ""}
+                  onClick={() => setActiveTab("view-members")}
+                  style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "8px 0" }}
+                >
+                  <i className="bi bi-list-ul" style={{ marginRight: 6 }}></i>
+                  View All Members
+                </li>
+                <li
+                  className={activeTab === "add-member" ? "active" : ""}
+                  onClick={() => setActiveTab("add-member")}
+                  style={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "8px 0" }}
+                >
+                  <i className="bi bi-person-plus" style={{ marginRight: 6 }}></i>
+                  Add New Member
+                </li>
+              </ul>
+            )}
+          </li>
+
+          <li
+            className={activeTab === "projects" ? "active" : ""}
+            onClick={() => setActiveTab("projects")}
+            style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+          >
+            <i className="bi bi-folder" style={{ marginRight: 8 }}></i>
+            Projects
+          </li>
+
+          <li
+            className={activeTab === "settings" ? "active" : ""}
+            onClick={() => setActiveTab("settings")}
+            style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+          >
+            <i className="bi bi-gear" style={{ marginRight: 8 }}></i>
+            Settings
+          </li>
+
+          <li
+            onClick={handleLogout}
+            style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+          >
+            <i className="bi bi-box-arrow-right" style={{ marginRight: 8 }}></i>
+            Logout
+          </li>
+        </ul>
+      </nav>
+    </aside>
       <main className="main-panel">
         <header>
           <h2>Welcome, {username}</h2>
