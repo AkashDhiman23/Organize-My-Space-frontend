@@ -1,8 +1,16 @@
+/* Global box-sizing for predictable sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* Container & layout */
 .dashboard-container {
   display: flex;
   min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden; /* prevent unwanted scrollbars */
 }
 
 /* Sidebar */
@@ -13,12 +21,15 @@
   width: 250px;
   flex-shrink: 0;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* scroll if sidebar content is tall */
+  height: 100vh; /* fix full viewport height */
+  position: sticky;
+  top: 0;
 }
 
 .sidebar-title {
   font-size: 20px;
-  margin:10px;
-  
+  margin: 10px;
 }
 
 .sidebar-divider {
@@ -44,7 +55,7 @@
 .sidebar-menu .nav-item:hover,
 .sidebar-menu .nav-item.active {
   color: #00bfff;
-  margin:5px;
+  margin: 5px;
   border-left: 4px solid #00bfff;
   background-color: rgba(255, 255, 255, 0.05);
 }
@@ -54,6 +65,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100vh; /* full height to allow inner scrolling */
+  overflow: hidden;
 }
 
 /* Top navbar */
@@ -126,7 +139,6 @@
   top: 110%;
   background-color: #fff;
   border: 1px solid #ddd;
- 
   min-width: 170px;
   z-index: 10;
   border-radius: 4px;
@@ -138,7 +150,6 @@
   border-bottom: 1px solid #eee;
   font-size: 14px;
   color: #656768;
- 
 }
 
 .dropdown-item:hover {
@@ -148,8 +159,9 @@
 /* Main content */
 .main-content {
   padding: 20px;
-  overflow-y: auto;
+  overflow-y: auto; /* scroll inside main content if overflow */
   flex-grow: 1;
+  height: 100%; /* fill parent height */
 }
 
 .customer-list {
@@ -168,7 +180,6 @@
   gap: 8px;
 }
 
-
 /* Responsive */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -176,19 +187,24 @@
   }
   .sidebar {
     width: 100%;
+    height: auto; /* allow height auto on small screens */
+    position: relative;
+    box-shadow: none;
   }
   .main-area {
     width: 100%;
+    height: auto; /* allow height auto on small screens */
+  }
+  .main-content {
+    height: auto;
   }
 }
 
-
-
+/* Clients container & sidebar */
 .clients-container {
   display: flex;
   gap: 2rem;
 }
-
 
 .clients-sidebar {
   width: 280px;
@@ -201,14 +217,13 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
+/* Summary rows */
 .summary-row {
-
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  margin:5px;
+  margin: 5px;
 }
 
 .summary-card {
@@ -228,10 +243,8 @@
 }
 
 .summary-card p {
-
   font-size: 1.6rem; /* smaller number font */
   font-weight: 700;
- 
   color: #212529;
 }
 
@@ -247,6 +260,7 @@
 .summary-card.new-clients {
   background-color: #fef6e4;
 }
+
 .search-input {
   padding: 10px 14px;
   font-size: 1rem;
@@ -314,9 +328,6 @@
   font-weight: 600;
 }
 
-
-
-
 /* customer card wrapper */
 .customer-card {
   background: #fff;
@@ -334,7 +345,6 @@
 }
 
 /* ---------- Customer list layout ------------------------------ */
-
 .customer-list-section {
   margin-top: 24px;
 }
@@ -428,8 +438,6 @@
     font-size: 0.85rem;
   }
 }
-
-
 
 /* Remove button backgrounds and style as links */
 .btn-link {
@@ -576,6 +584,63 @@
   cursor: not-allowed;
 }
 
+/* ===== Profile Card Enhancements ===== */
+.profile-card {
+  max-width: 880px;          /* keeps card from stretching too wide on XL screens */
+  margin-inline: auto;       /* center horizontally */
+}
 
+.avatar-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #6c757d;
+}
 
+.section-heading {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.75rem;
+}
 
+.detail-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed #e0e0e0;
+  padding-bottom: 4px;
+}
+
+.detail-row span {
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.detail-row strong {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .avatar-circle {
+    width: 80px;
+    height: 80px;
+    font-size: 34px;
+  }
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

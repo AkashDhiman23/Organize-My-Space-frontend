@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import "./Projectdetails.css";
 
-function ProjectDetail() {
+function ProjectDetailsmanager() {
   const { customerId } = useParams();
   const navigate = useNavigate();
 
@@ -12,6 +12,7 @@ function ProjectDetail() {
     length: "",
     width: "",
     depth: "",
+    status:"",
     productName: "",
     bodyColor: "",
     doorColor: "",
@@ -20,24 +21,32 @@ function ProjectDetail() {
   });
 
   const [projectStatus, setProjectStatus] = useState("");
+
+  const [productionImagesCount, setProductionImagesCount] = useState(0);
+  const [productionImages, setProductionImages] = useState([]);
+  const [loadingProductionImages, setLoadingProductionImages] = useState(true);
+
   const [drawingsCount, setDrawingsCount] = useState(0);
   const [drawings, setDrawings] = useState([]);
   const [loadingDrawings, setLoadingDrawings] = useState(true);
 
   // Calculate square feet safely
-  const squareFeet = (parseFloat(size.length) || 0) * (parseFloat(size.width) || 0);
+  const squareFeet =
+    (parseFloat(size.length) || 0) * (parseFloat(size.width) || 0);
 
-  const canAddDrawing = drawingsCount < 4 && projectStatus !== "Completed";
+  const canAddProductionImage = productionImagesCount < 4;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch customer info
         const { data: cust } = await axios.get(
           `http://localhost:8000/accounts/customers/${customerId}/`,
           { withCredentials: true }
         );
         setCustomer(cust);
 
+        // Fetch project info
         const { data: proj } = await axios.get(
           `http://localhost:8000/accounts/customers/${customerId}/project/`,
           { withCredentials: true }
@@ -53,8 +62,7 @@ function ProjectDetail() {
           bodyMaterial: proj.body_material ?? "",
           doorMaterial: proj.door_material ?? "",
         });
-
-        setProjectStatus(proj.status ?? "");
+        setProjectStatus(proj.status ?? "");  
       } catch (err) {
         console.error("fetch error:", err);
       }
@@ -62,6 +70,45 @@ function ProjectDetail() {
     fetchData();
   }, [customerId]);
 
+  // Fetch production images
+  useEffect(() => {
+    const fetchProductionImages = async () => {
+      try {
+        setLoadingProductionImages(true);
+        const { data } = await axios.get(
+          `http://localhost:8000/accounts/customers/${customerId}/project/production-images/`,
+          { withCredentials: true }
+        );
+
+        const BASE = "http://localhost:8000";
+
+        const normalizedImages = data.map((img) => {
+          const file = img.file.startsWith("http")
+            ? img.file
+            : `${BASE}/media/${img.file.replace(/^\/?/, "")}`;
+          return {
+            ...img,
+            file,
+            image_url:
+              /\.(jpe?g|png)$/i.test(file) ? file : null,
+          };
+        });
+
+        setProductionImages(normalizedImages);
+        setProductionImagesCount(normalizedImages.length);
+      } catch (err) {
+        console.error("Error fetching production images:", err);
+        setProductionImages([]);
+        setProductionImagesCount(0);
+      } finally {
+        setLoadingProductionImages(false);
+      }
+    };
+
+    fetchProductionImages();
+  }, [customerId]);
+
+  // Fetch drawings
   useEffect(() => {
     const fetchDrawings = async () => {
       try {
@@ -80,7 +127,8 @@ function ProjectDetail() {
           return {
             ...d,
             file,
-            image_url: /\.(jpe?g|png)$/i.test(file) ? file : null,
+            image_url:
+              /\.(jpe?g|png)$/i.test(file) ? file : null,
           };
         });
 
@@ -100,15 +148,8 @@ function ProjectDetail() {
 
   const goBack = () => navigate(-1);
 
-  const goToCanvas = () => {
-    if (canAddDrawing) {
-      navigate(`/draw/${customerId}?drawingNum=${drawingsCount + 1}`);
-    }
-  };
-
   const handleChange = (key, value) => {
     if (["length", "width", "depth"].includes(key)) {
-      // Allow empty string or numeric values only
       if (value === "") {
         setSize((prev) => ({ ...prev, [key]: "" }));
       } else {
@@ -122,13 +163,69 @@ function ProjectDetail() {
     }
   };
 
+  // Upload new production images handler
+  const handleImageUpload = async (event) => {
+    const files = event.target.files;
+    if (!files.length) return;
+
+    // Limit to max 4 images total
+    if (productionImagesCount + files.length > 4) {
+      alert("You can upload max 4 production images in total.");
+      return;
+    }
+
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // Adjust the endpoint and payload to your API specification
+        await axios.post(
+          `http://localhost:8000/accounts/customers/${customerId}/project/production-images/`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          }
+        );
+      }
+
+      // After upload, reload production images
+      const { data } = await axios.get(
+        `http://localhost:8000/accounts/customers/${customerId}/project/production-images/`,
+        { withCredentials: true }
+      );
+      const BASE = "http://localhost:8000";
+      const normalizedImages = data.map((img) => {
+        const file = img.file.startsWith("http")
+          ? img.file
+          : `${BASE}/media/${img.file.replace(/^\/?/, "")}`;
+        return {
+          ...img,
+          file,
+          image_url: /\.(jpe?g|png)$/i.test(file) ? file : null,
+        };
+      });
+      setProductionImages(normalizedImages);
+      setProductionImagesCount(normalizedImages.length);
+
+      alert("Images uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      alert("Failed to upload images.");
+    }
+
+    // Reset the input so same files can be uploaded again if needed
+    event.target.value = null;
+  };
+
   const saveProject = async () => {
     if (!size.length || !size.width) {
       alert("Length and width required");
       return;
     }
-    if (drawingsCount < 2) {
-      alert("You must add at least 2 drawings.");
+    if (productionImagesCount < 2) {
+      alert("You must add at least 2 production images.");
       return;
     }
 
@@ -169,25 +266,22 @@ function ProjectDetail() {
 
   return (
     <div className="project-detail-page">
-      <div className="pd-header-row" role="banner">
-        <button
-          className="btn back-btn"
-          onClick={goBack}
-          aria-label="Go back"
-          type="button"
-        >
-          <i className="bi bi-arrow-left-short" aria-hidden="true" /> Back
+      <div className="pd-header-row">
+        <button className="btn back-btn" onClick={goBack}>
+          <i className="bi bi-arrow-left-short" /> Back
         </button>
 
-        <h2 className="customer-name-header">{`Customer – ${customer?.name || "Customer"}`}</h2>
+        <h2 className="customer-name-header">
+          Customer – {customer?.name || "Customer"}
+        </h2>
 
-        <span className="drawings-count" aria-live="polite">
-          {drawingsCount}/4 drawings
+        <span className="drawings-count">
+          {productionImagesCount}/4 production images
         </span>
       </div>
 
       <div className="pd-main-grid">
-        <div className="pd-form" role="main">
+        <div className="pd-form">
           {customer && (
             <div className="cust-card mb-3">
               <p>
@@ -202,18 +296,15 @@ function ProjectDetail() {
             </div>
           )}
 
-          <section className="form-section" aria-labelledby="dimensions-heading">
-            <h4 id="dimensions-heading">Dimensions</h4>
+          <section className="form-section">
+            <h4>Dimensions</h4>
             <div className="two-col">
               <label htmlFor="length">Height (ft)</label>
               <input
                 id="length"
                 type="number"
                 value={length}
-                min="0"
-                step="any"
                 onChange={(e) => handleChange("length", e.target.value)}
-                aria-describedby="square-footage"
               />
 
               <label htmlFor="width">Width (ft)</label>
@@ -221,10 +312,7 @@ function ProjectDetail() {
                 id="width"
                 type="number"
                 value={width}
-                min="0"
-                step="any"
                 onChange={(e) => handleChange("width", e.target.value)}
-                aria-describedby="square-footage"
               />
 
               <label htmlFor="depth">Depth (in)</label>
@@ -232,17 +320,14 @@ function ProjectDetail() {
                 id="depth"
                 type="number"
                 value={depth}
-                min="0"
-                step="any"
                 onChange={(e) => handleChange("depth", e.target.value)}
               />
             </div>
           </section>
 
-          <section className="form-section" aria-labelledby="material-heading">
-            <h4 id="material-heading">Material</h4>
-
-            <label htmlFor="materialName">Product name</label>
+          <section className="form-section">
+            <h4>Material</h4>
+            <label htmlFor="materialName">Product name </label>
             <input
               id="materialName"
               type="text"
@@ -287,44 +372,60 @@ function ProjectDetail() {
             </div>
           </section>
 
-          <p className="mt-2" id="square-footage">
-            <strong>Sq ft:</strong> {squareFeet.toFixed(2)}
+          <p className="mt-2">
+            <strong>Sq ft:</strong> {squareFeet}
           </p>
 
-          <div className="pd-buttons">
-            <button
-              className="btn-dark"
-              disabled={!canAddDrawing}
-              onClick={goToCanvas}
-              type="button"
-              style={{
-                cursor: canAddDrawing ? "pointer" : "not-allowed",
-              }}
-              aria-disabled={!canAddDrawing}
-              aria-describedby="drawings-info"
-            >
-              {projectStatus === "Completed"
-                ? "Project Completed - Cannot Add Drawings"
-                : canAddDrawing
-                ? drawingsCount === 0
-                  ? "Add Drawing"
-                  : "Add Another Drawing"
-                : "4 Drawings Max"}
-            </button>
+      
 
-            {/* Uncomment if you want to enable Save Project button */}
-            {/* <button className="btn-primary" onClick={saveProject} type="button">
-              Save Project
-            </button> */}
-          </div>
-
-          <p className="min-note" id="drawings-info">
-            * Minimum 2 drawings required to save
-          </p>
+          <p className="min-note">* Minimum 2 production images required to save</p>
         </div>
 
-        <aside className="pd-drawings" aria-label="Project drawings">
-          <h4>Drawings</h4>
+        <aside className="pd-drawings">
+          <h4>Production Images</h4>
+
+          {loadingProductionImages ? (
+            <p className="text-muted">Loading…</p>
+          ) : productionImagesCount === 0 ? (
+            <p className="text-muted">No production images added yet.</p>
+          ) : (
+            <div className="draw-grid">
+              {productionImages.map((img) => (
+                <div key={img.id} className="draw-card">
+                  {img.image_url ? (
+                    <img
+                      src={img.image_url}
+                      alt={`Production Image ${img.image_num}`}
+                    />
+                  ) : (
+                    <i className="bi bi-file-earmark-text display-6 text-secondary" />
+                  )}
+
+                  <div className="draw-links">
+                    <a
+                      href={img.file}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="d-flex align-items-center gap-1"
+                    >
+                      <i className="bi bi-eye" />
+                      View Production Image {img.image_num}
+                    </a>
+                    <a
+                      href={img.file}
+                      download
+                      className="d-flex align-items-center gap-1"
+                    >
+                      <i className="bi bi-download" />
+                      Download
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <h4 className="mt-4">Drawings</h4>
 
           {loadingDrawings ? (
             <p className="text-muted">Loading…</p>
@@ -337,7 +438,7 @@ function ProjectDetail() {
                   {d.image_url ? (
                     <img src={d.image_url} alt={`Drawing ${d.drawing_num}`} />
                   ) : (
-                    <i className="bi bi-file-earmark-text display-6 text-secondary" aria-hidden="true" />
+                    <i className="bi bi-file-earmark-text display-6 text-secondary" />
                   )}
 
                   <div className="draw-links">
@@ -347,7 +448,7 @@ function ProjectDetail() {
                       rel="noreferrer"
                       className="d-flex align-items-center gap-1"
                     >
-                      <i className="bi bi-eye" aria-hidden="true" />
+                      <i className="bi bi-eye" />
                       View Drawing {d.drawing_num}
                     </a>
                     <a
@@ -355,7 +456,7 @@ function ProjectDetail() {
                       download
                       className="d-flex align-items-center gap-1"
                     >
-                      <i className="bi bi-download" aria-hidden="true" />
+                      <i className="bi bi-download" />
                       Download
                     </a>
                   </div>
@@ -369,4 +470,4 @@ function ProjectDetail() {
   );
 }
 
-export default ProjectDetail;
+export default ProjectDetailsmanager;
