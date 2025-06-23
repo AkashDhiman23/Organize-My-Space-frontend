@@ -217,15 +217,6 @@ const csrftoken = getCookie('csrftoken');
           <div className="company-logo" onClick={() => navigate("/")}>
             <span>{ company.company_name || "Your Company"}</span>
           </div>
-          <ul className="nav-links">
-            <li className={`nav-link ${isClientsPage ? "active" : ""}`} onClick={() => navigate("/clients")}>
-              <i className="bi bi-people" />Dashboard
-            </li>
-            <li className={`nav-link ${isActive("/my-projects") ? "active" : ""}`} onClick={() => navigate("/my-projects")}>
-              <i className="bi bi-folder2-open" /> Projects
-            </li>
-           
-          </ul>
         </nav>
 
         {/* Content */}

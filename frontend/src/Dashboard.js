@@ -1,45 +1,38 @@
 // AdminDashboard.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from "react";
 import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from 'recharts';
-import './Dashboard.css';
+} from "recharts";
+import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
+
+const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f"];
 
 
-
-/* Helper for month names */
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  
   const [membersOpen, setMembersOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [members, setMembers] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [projects, setProjects] = useState([]);
-
+ 
   // Add member form states
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('Designer');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState(null);
+ 
 
   // Company settings form states
   const [companyName, setCompanyName] = useState('');
@@ -51,52 +44,121 @@ export default function AdminDashboard() {
   const [existingLogoUrl, setExistingLogoUrl] = useState(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
 
+
+  const [selectedDate, setSelectedDate] = useState("");
+const [newCustomersCount, setNewCustomersCount] = useState(0);
+
+const [successMessage, setSuccessMessage] = useState(null);
+const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+const [logoutMsg, setLogoutMsg] = useState(null);
+const [loggingOut, setLoggingOut] = useState(false);
+
+
+  // ── State Variables ──
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [members, setMembers] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [companyLogoUrl, setCompanyLogoUrl] = useState(null);
+  
+ 
+  const [message, setMessage] = useState(null);
+
+
+  const assignedProjects = customers.filter(
+  c => c.latest_project && (c.latest_project.assigned_designer || c.latest_project.assigned_production)
+).length;
+
+const unassignedProjects = customers.filter(
+  c => !c.latest_project || (!c.latest_project.assigned_designer && !c.latest_project.assigned_production)
+).length;
+
+const completedProjects = customers.filter(
+  c =>
+    c.latest_project &&
+    (
+      (typeof c.latest_project.progress_percentage === "number" && c.latest_project.progress_percentage >= 100) ||
+      (c.latest_project.status?.toLowerCase() === "completed")
+    )
+).length;
+
+  const projectPieData = [
+    { name: "Assigned", value: assignedProjects },
+    { name: "Unassigned", value: unassignedProjects },
+    { name: "Completed", value: completedProjects },
+  ];
+
+  const overviewBarData = [
+    { name: "Customers", value: customers.length },
+    { name: "Team", value: members.length },
+    { name: "Projects", value: customers.length },
+  ];
+
+
+
+  const fetchAll = useCallback(async () => {
+  try {
+    const [mRes, cRes, pRes, sRes] = await Promise.all([
+      fetch("http://localhost:8000/accounts/members/", { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/all_customers_admin/", { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/projects-list/", { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/admin_settings/", { credentials: "include" }),
+    ]);
+
+    if (mRes.ok) {
+      const membersData = await mRes.json();
+      console.log("Members Data:", membersData);
+      setMembers(membersData);
+    }
+
+    if (cRes.ok) {
+      const customersData = await cRes.json();
+      console.log("Customers Data:", customersData);
+      setCustomers(customersData);
+    }
+
+    if (pRes.ok) {
+      const projectsData = await pRes.json();
+      console.log("Projects Data:", projectsData);
+      setProjects(Array.isArray(projectsData) ? projectsData : projectsData.projects || []);
+    }
+
+    if (sRes.ok) {
+      const settingsData = await sRes.json();
+      console.log("Settings Data:", settingsData);
+      if (settingsData.company_logo) {
+        const fullUrl = settingsData.company_logo.startsWith("http")
+          ? settingsData.company_logo
+          : `http://localhost:8000${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
+        setCompanyLogoUrl(fullUrl);
+      }
+    }
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  }
+}, []);
+
+  useEffect(() => {
+    if (["dashboard", "projects", "view-members", "settings"].includes(activeTab)) {
+      fetchAll();
+    }
+  }, [activeTab, fetchAll]);
+
+  useEffect(() => {
+    if (message) {
+      const timeout = setTimeout(() => setMessage(null), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [message]);
+
+
+
   // Load username from session on mount
   useEffect(() => {
     setUsername(sessionStorage.getItem('full_name') || 'Admin');
   }, []);
 
-  // Fetch all required data
-  const fetchAll = useCallback(async () => {
-    try {
-      const [mRes, cRes, pRes, compRes] = await Promise.all([
-        fetch('http://localhost:8000/accounts/members/', { credentials: 'include' }),
-        fetch('http://localhost:8000/accounts/all_customers_admin/', { credentials: 'include' }),
-        fetch('http://localhost:8000/accounts/projects/', { credentials: 'include' }),
-        fetch('http://localhost:8000/accounts/admin_settings/', { credentials: 'include' }),
-      ]);
-
-      if (mRes.ok) setMembers(await mRes.json());
-      if (cRes.ok) setCustomers(await cRes.json());
-      if (pRes.ok) setProjects(await pRes.json());
-
-      if (compRes.ok) {
-  const data = await compRes.json();
-  setCompanyName(data.company_name || '');
-  setAddress(data.address || '');
-  setGstNumber(data.gst_details || '');
-
-  // Fix: data.company_logo may be a full URL or a relative path
-  // Adjust base URL if needed (backend should ideally send full URL)
-  if (data.company_logo) {
-    // If company_logo already includes "http" or starts with "/", use as is
-    if (data.company_logo.startsWith('http') || data.company_logo.startsWith('/')) {
-      setExistingLogoUrl(data.company_logo.startsWith('http')
-        ? data.company_logo
-        : `http://localhost:8000${data.company_logo}`
-      );
-    } else {
-      // Otherwise prepend media folder
-      setExistingLogoUrl(`http://localhost:8000/media/${data.company_logo}`);
-    }
-  } else {
-    setExistingLogoUrl(null);
-  }
-}
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
+  
 
   // Fetch fresh data when relevant tab is active
   useEffect(() => {
@@ -113,6 +175,10 @@ export default function AdminDashboard() {
     }
   }, [message]);
 
+
+
+  
+
   useEffect(() => {
     if (settingsMessage) {
       const timer = setTimeout(() => setSettingsMessage(null), 5000);
@@ -127,25 +193,10 @@ export default function AdminDashboard() {
     Production: members.filter((m) => m.role === 'Production'),
   };
 
-  // Create project counts by month for bar chart
-  const projectsByMonth = monthNames.map((m, i) => ({
-    month: m,
-    projects: projects.filter((p) => {
-      if (!p.created_at) return false;
-      const dt = new Date(p.created_at);
-      return dt.getMonth() === i;
-    }).length,
-  }));
+  
+  
 
-  // Create pie chart data for project status
-  const projectStatusData = (() => {
-    if (!projects.length) return [];
-    const counts = {};
-    projects.forEach((p) => {
-      counts[p.status] = (counts[p.status] || 0) + 1;
-    });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  })();
+  const COLORS = ['#4caf50', '#ff9800'];
 
   // Helper to get CSRF token from cookies
   const getCookie = (name) => {
@@ -185,22 +236,50 @@ export default function AdminDashboard() {
   };
 
   
+function handleLogoutConfirm() {
+  setShowLogoutConfirm(true);
+}
 
-  // Logout handler
-  const handleLogout = async () => {
-    try {
-      await fetch('http://localhost:8000/accounts/logout/', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      });
-      sessionStorage.clear();
-      window.location.href = '/login';
-    } catch {
-      alert('Logout failed');
+function handleLogoutCancel() {
+  setShowLogoutConfirm(false);
+  setLogoutMsg(null);
+}
+
+const csrftoken = getCookie('csrftoken');
+async function handleLogout() {
+  setLoggingOut(true);
+  setLogoutMsg(null);
+
+  try {
+    const response = await fetch("http://localhost:8000/accounts/logout/", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setLogoutMsg({ type: "success", text: data.message || "Logged out successfully." });
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 10);
+    } else {
+      setLogoutMsg({ type: "error", text: "Logout failed. Please try again." });
     }
-  };
+  } catch (err) {
+    console.error("Logout error:", err);
+    setLogoutMsg({ type: "error", text: "Something went wrong." });
+  } finally {
+    setLoggingOut(false);
+    setShowLogoutConfirm(false); // hide confirmation box
+  }
 
+  
+}
+
+ 
+const teamMembers = members;   // alias so ESLint sees it
   
 // Fetch company details with logo URL on mount
 useEffect(() => {
@@ -248,7 +327,6 @@ const handleLogoChange = (e) => {
   }
 };
 
-
   // Save settings handler
   const handleSaveCompanyDetails = async (e) => {
     e.preventDefault();
@@ -284,6 +362,92 @@ const handleLogoChange = (e) => {
       setLoading(false);
     }
   };
+  const renderDashboard = () =>
+  activeTab === "dashboard" && (
+    <>
+     
+
+   
+
+      {/* ── Grid layout ─────────────────────────────── */}
+      <div className="dash-grid">
+        {/* ◀ LEFT: Charts Section ◀ */}
+        <div className="charts-stack">
+          <div className="chart-box">
+            <h4 className="chart-title">Project Distribution</h4>
+            <PieChart width={300} height={240}>
+              <Pie
+                data={projectPieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={85}
+                label
+              >
+                <Cell fill="#4e79a7" />
+                <Cell fill="#f28e2b" />
+                <Cell fill="#59a14f" />
+              </Pie>
+              <Tooltip />
+              <Legend verticalAlign="bottom" height={32} />
+            </PieChart>
+          </div>
+
+          <div className="chart-box">
+            <h4 className="chart-title">Overview</h4>
+            <BarChart width={300} height={240} data={overviewBarData}>
+              <XAxis dataKey="name" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </div>
+        </div>
+
+        {/* ▶ RIGHT: Stat Cards ▶ */}
+        <div className="stats-cards">
+          <div className="stat-card">
+            <h3>{customers.length}</h3>
+            <p>Total Customers</p>
+            <i className="bi bi-people-fill stat-icon"></i>
+          </div>
+
+          
+
+          <div className="stat-card">
+            <h3>{teamMembers.length}</h3>
+            <p>Team Members</p>
+            <i className="bi bi-people stat-icon"></i>
+          </div>
+
+          <div className="stat-card">
+            <h3>{customers.length}</h3>
+            <p>Projects</p>
+            <i className="bi bi-kanban stat-icon"></i>
+          </div>
+
+          <div className="stat-card">
+            <h3>{assignedProjects}</h3>
+            <p>Assigned Projects</p>
+            <i className="bi bi-check2-circle stat-icon"></i>
+          </div>
+
+          <div className="stat-card">
+            <h3>{unassignedProjects}</h3>
+            <p>Unassigned Projects</p>
+            <i className="bi bi-question-circle stat-icon"></i>
+          </div>
+
+          <div className="stat-card">
+            <h3>{completedProjects}</h3>
+            <p>Completed Projects</p>
+            <i className="bi bi-flag stat-icon"></i>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   // Member table component for role groups
   const MemberTable = ({ title, data }) => (
@@ -387,78 +551,8 @@ const handleLogoChange = (e) => {
     </div>
   );
 
-  // Dashboard overview content with charts
-  const renderDashboard = () => (
-    <div className="dashboard-overview">
-      <h2>Dashboard Overview</h2>
-
-      <div className="stats-cards">
-        <div className="card stat-card">
-          <h3>{projects.length}</h3>
-          <p>Total Projects</p>
-        </div>
-        <div className="card stat-card">
-          <h3>{members.length}</h3>
-          <p>Total Staff Members</p>
-        </div>
-        <div className="card stat-card">
-          <h3>{customers.length}</h3>
-          <p>Total Customers</p>
-        </div>
-        <div className="card stat-card">
-          <h3>
-            {projects.length
-              ? Math.round(
-                  projects.reduce((acc, p) => acc + (p.progress_percentage || 0), 0) /
-                    projects.length
-                )
-              : 0}
-            %
-          </h3>
-          <p>Avg Project Progress</p>
-        </div>
-      </div>
-
-      <div className="charts-section">
-        <div className="chart-container">
-          <h4>Projects by Month</h4>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={projectsByMonth}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="projects" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-container">
-          <h4>Project Status Distribution</h4>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={projectStatusData.length ? projectStatusData : [{ name: 'No Data', value: 1 }]}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#82ca9d"
-                dataKey="value"
-                label
-              >
-                {(projectStatusData.length ? projectStatusData : [{ name: '', value: 1 }]).map(
-                  (_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                )}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-
+ 
+  
   // Member grids: 3 tables side by side
   const renderMemberGrids = () => (
     <div>
@@ -670,9 +764,10 @@ const handleLogoChange = (e) => {
               Dashboard
             </li>
 
-            <li>
-              <div
-    className={`dropdown-header ${membersOpen ? 'active' : ''}`}
+        <li className={`menu-item ${membersOpen ? 'open' : ''}`}>
+  <button
+    type="button"
+    className={`menu-header ${membersOpen ? 'active' : ''}`}
     onClick={() => setMembersOpen(!membersOpen)}
   >
     <i className="bi bi-people me-2" />
@@ -684,30 +779,29 @@ const handleLogoChange = (e) => {
         <i className="bi bi-caret-down-fill" />
       )}
     </span>
-  </div>
+  </button>
 
-  {/* ▼ NEW: wrapper keeps sub-list same width & background */}
   {membersOpen && (
-    <div className="dropdown-collapse">
-      <ul className="dropdown-menu">
-        <li
-          className={activeTab === 'view-members' ? 'active' : ''}
-          onClick={() => setActiveTab('view-members')}
-        >
-          <i className="bi bi-list-ul me-2" />
-          View All
-        </li>
-        <li
-          className={activeTab === 'add-member' ? 'active' : ''}
-          onClick={() => setActiveTab('add-member')}
-        >
-          <i className="bi bi-person-plus me-2" />
-          Add New
-        </li>
-      </ul>
-    </div>
+    <ul className="submenu">
+      <li
+        className={activeTab === 'view-members' ? 'active' : ''}
+        onClick={() => setActiveTab('view-members')}
+      >
+        <i className="bi bi-list-ul me-2" />
+        View All
+      </li>
+      <li
+        className={activeTab === 'add-member' ? 'active' : ''}
+        onClick={() => setActiveTab('add-member')}
+      >
+        <i className="bi bi-person-plus me-2" />
+        Add New
+      </li>
+    </ul>
   )}
-            </li>
+</li>
+
+
 
             <li
               className={activeTab === 'projects' ? 'active' : ''}
@@ -725,10 +819,13 @@ const handleLogoChange = (e) => {
               Settings
             </li>
 
-            <li onClick={handleLogout}>
-              <i className="bi bi-box-arrow-right me-2" />
-              Logout
-            </li>
+           <li
+  className="nav-item logout-item"
+  onClick={handleLogoutConfirm}
+  style={{ cursor: "pointer" }}
+>
+  <i className="bi bi-box-arrow-right" /> Logout
+</li>
           </ul>
         </nav>
       </aside>
@@ -739,7 +836,7 @@ const handleLogoChange = (e) => {
       {/* Company logo */}
       <div
         className="avatar-circle bg-light d-flex align-items-center justify-content-center me-3"
-        style={{ width: 50, height: 50, borderRadius: '50%', overflow: 'hidden' }}
+        style={{ width: 80, height: 50, borderRadius: '50%', overflow: 'hidden' }}
       >
         {existingLogoUrl ? (
           <img
@@ -762,7 +859,69 @@ const handleLogoChange = (e) => {
 
   <section className="main-content">{renderContent()}</section>
 </main>
+ {/* Success / error message box */}
+{successMessage && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <p>{successMessage}</p>
+      <div className="modal-buttons">
+        <button
+          className="btn btn-confirm"
+          onClick={() => setSuccessMessage(null)}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Logout Confirmation Modal */}
+{showLogoutConfirm && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <h4>Confirm Logout</h4>
+      <p>Are you sure you want to logout?</p>
+      <div className="modal-buttons">
+        <button
+          className="btn btn-confirm"
+          onClick={handleLogout}
+          disabled={loggingOut}
+        >
+          {loggingOut ? "Logging out…" : "Yes, Logout"}
+        </button>
+        <button
+          className="btn btn-cancel"
+          onClick={handleLogoutCancel}
+          disabled={loggingOut}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Logout message (success or error) */}
+{logoutMsg && (
+  <div
+    className={`${logoutMsg.type}-message modal-overlay`}
+    onClick={() => setLogoutMsg(null)}
+  >
+    <div className="modal-box" style={{ cursor: "pointer" }}>
+      {logoutMsg.text}
+    </div>
+  </div>
+)}
+      
+ 
+
+
 
     </div>
+
+
+
+
   );
 }

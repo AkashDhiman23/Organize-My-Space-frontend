@@ -33,9 +33,9 @@
 
 .sidebar li {
   padding: 12px 15px;
-  display: flex;
+ 
   align-items: center;
-  gap: 20px;
+  gap: 25px;
   cursor: pointer;
   font-size: 16px;
   border-left: 4px solid transparent;
@@ -49,53 +49,54 @@
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* keep header same as before */
-.dropdown-header {
-  padding: 12px 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #ecf0f1;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background .2s, color .2s;
+
+.menu-item {
+  list-style: none;
 }
-.dropdown-header:hover,
-.dropdown-header.active {
-  background: rgba(255,255,255,.07);
+
+.menu-header {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  padding: 12px 15px;
+ 
+  align-items: center;
+  width: 100%;
+  font-size: 16px;
+  gap: 25px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.3s;
+}
+
+.menu-header:hover,
+.menu-header.active {
+  background-color: rgba(255, 255, 255, 0.05);
   color: #00bfff;
 }
 
-
-/* sub-menu takes full width, no indent  */
-.dropdown-menu {
+.submenu {
+  padding-left: 25px;
+  margin-top: 5px;
   list-style: none;
-  width: 100%;
-  margin: 0;
-  padding: 0;                   
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  background-color: #2c3e50; /* same as sidebar background */
 }
 
-/* sub-items look like normal links */
-.dropdown-menu li {
-  padding: 10px 15px;           
+.submenu li {
+  padding: 10px 8px;
   font-size: 15px;
   color: #ecf0f1;
   cursor: pointer;
-  border-left: 4px solid transparent;
-  border-radius: 4px;
-  transition: background .2s, color .2s, border-color .2s;
+  transition: background 0.2s, color 0.2s;
 }
 
-/* hover / active */
-.dropdown-menu li:hover,
-.dropdown-menu li.active {
+.submenu li:hover,
+.submenu li.active {
   color: #00bfff;
-  background: rgba(255,255,255,.05);
-  border-left-color: #00bfff;
+  background-color: rgba(255, 255, 255, 0.05);
 }
+
+
 
 /* ---- Main Panel ---- */
 .main-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }

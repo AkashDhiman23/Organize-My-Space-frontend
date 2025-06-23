@@ -5,6 +5,7 @@ import "./designerdashboard.css";
 
 function DesignerDashboard() {
   const [companyDetails, setCompanyDetails] = useState({
+    company_logo:"",
     company_name: "",
     full_name: "",
     address: "",
@@ -18,6 +19,7 @@ function DesignerDashboard() {
     company_name: "",
     address:      "",
     gst_details:  "",
+    company_logo:"",
   });
 
   const [customers, setCustomers] = useState([]);
@@ -25,8 +27,9 @@ function DesignerDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-const [logoutLoading, setLogoutLoading] = useState(false);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+const [logoutMsg, setLogoutMsg] = useState(null);
+const [loggingOut, setLoggingOut] = useState(false);
 
   // Helper functions to check current route
   const isActive = (p) => location.pathname === p;
@@ -36,6 +39,16 @@ const [logoutLoading, setLogoutLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
 
+
+
+function handleLogoutConfirm() {
+  setShowLogoutConfirm(true);
+}
+
+function handleLogoutCancel() {
+  setShowLogoutConfirm(false);
+  setLogoutMsg(null);
+}
   
 
   // Filter customers based on search term (case-insensitive)
@@ -164,28 +177,37 @@ function getCookie(name) {
 
 // In your React code:
 const csrftoken = getCookie('csrftoken');
+async function handleLogout() {
+  setLoggingOut(true);
+  setLogoutMsg(null);
 
+  try {
+    const response = await fetch("http://localhost:8000/accounts/logout/", {
+      method: "POST",
+      credentials: "include",
+    });
 
-  async function handleLogout() {
-    try {
-      const response = await fetch('http://localhost:8000/accounts/logout/', {
-        method: 'POST',
-        credentials: 'include', // Sends session cookie
-      });
+    const data = await response.json();
 
-      const data = await response.json();
+    if (response.ok) {
+      setLogoutMsg({ type: "success", text: data.message || "Logged out successfully." });
 
-      if (response.ok) {
-        alert(data.message); 
-        window.location.href = '/login'; // Redirect to login
-      } else {
-        alert("Logout failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert("Something went wrong.");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 10);
+    } else {
+      setLogoutMsg({ type: "error", text: "Logout failed. Please try again." });
     }
+  } catch (err) {
+    console.error("Logout error:", err);
+    setLogoutMsg({ type: "error", text: "Something went wrong." });
+  } finally {
+    setLoggingOut(false);
+    setShowLogoutConfirm(false); // hide confirmation box
   }
+
+  
+}
 
 
   return (
@@ -207,7 +229,11 @@ const csrftoken = getCookie('csrftoken');
           <li className={`nav-item ${isActive("/designer-profile") ? "active" : ""}`} onClick={() => navigate("/company-profile")}>
             <i className="bi bi-person-badge" /> My Profile
           </li>
-         <li className="nav-item" onClick={handleLogout}>
+         <li
+  className="nav-item logout-item"
+  onClick={handleLogoutConfirm}
+  style={{ cursor: "pointer" }}
+>
   <i className="bi bi-box-arrow-right" /> Logout
 </li>
 
@@ -217,20 +243,18 @@ const csrftoken = getCookie('csrftoken');
       {/* Main area */}
       <main className="main-area">
         {/* Top navbar */}
-        <nav className="top-navbar">
-          <div className="company-logo" onClick={() => navigate("/")}>
-            <span>{ company.company_name || "Your Company"}</span>
-          </div>
-          <ul className="nav-links">
-            <li className={`nav-link ${isClientsPage ? "active" : ""}`} onClick={() => navigate("/clients")}>
-              <i className="bi bi-people" />Dashboard
-            </li>
-            <li className={`nav-link ${isActive("/my-projects") ? "active" : ""}`} onClick={() => navigate("/my-projects")}>
-              <i className="bi bi-folder2-open" /> Projects
-            </li>
-           
-          </ul>
-        </nav>
+       <nav className="top-navbar">
+  <div className="company-logo" >
+    {company.logo_url && (
+      <img
+        src={company.company_logo}
+        alt={`${company.company_name || "Company"} logo`}
+        className="company-logo-img"
+      />
+    )}
+    <span>{company.company_name || "Your Company"}</span>
+  </div>
+</nav>
 
         {/* Content */}
         <div className="main-content">
@@ -317,8 +341,8 @@ const csrftoken = getCookie('csrftoken');
     <th>Email</th>
     <th>Contact</th>
     <th>Address</th>
-    <th>Project</th>          {/* NEW */}
-    <th>Status</th>           {/* NEW */}
+    <th>Project</th>          
+    <th>Status</th>           
     <th>Joined</th>
   </tr>
 </thead>
@@ -534,35 +558,47 @@ const csrftoken = getCookie('csrftoken');
   </div>
 )}
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h4>Confirm Action</h4>
-            <p>Are you sure you want to send this project to production?</p>
-            <div className="modal-buttons">
-              <button
-                className="btn btn-confirm"
-                onClick={handleConfirm}
-                disabled={actionLoading}
-              >
-                {actionLoading ? "Processing..." : "Yes"}
-              </button>
-              <button
-                className="btn btn-cancel"
-                onClick={handleCancel}
-                disabled={actionLoading}
-              >
-                No
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+{/* Logout Confirmation Modal */}
+{showLogoutConfirm && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <h4>Confirm Logout</h4>
+      <p>Are you sure you want to logout?</p>
+      <div className="modal-buttons">
+        <button
+          className="btn btn-confirm"
+          onClick={handleLogout}
+          disabled={loggingOut}
+        >
+          {loggingOut ? "Logging out…" : "Yes, Logout"}
+        </button>
+        <button
+          className="btn btn-cancel"
+          onClick={handleLogoutCancel}
+          disabled={loggingOut}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
-
+{/* Logout message (success or error) */}
+{logoutMsg && (
+  <div
+    className={`${logoutMsg.type}-message modal-overlay`}
+    onClick={() => setLogoutMsg(null)}
+  >
+    <div className="modal-box" style={{ cursor: "pointer" }}>
+      {logoutMsg.text}
+    </div>
+  </div>
+)}
       
     </div>
+
+    
 
 
 

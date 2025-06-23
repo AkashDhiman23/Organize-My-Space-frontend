@@ -5,11 +5,11 @@
   box-sizing: border-box;
 }
 
-html, body {
-  margin: 0; 
+body {
+  margin: 0;
   padding: 0;
   max-width: 100vw;
-  overflow-x: hidden; /* Hide horizontal scrollbar */
+  overflow-y: auto; /* Add this if not already set */
   font-family: 'Segoe UI', sans-serif;
   background-color: #f9f9f9;
 }
@@ -17,10 +17,10 @@ html, body {
 /* Main container */
 .project-detail-page {
   max-width: 100vw;
-  overflow-x: hidden;
+
   padding: 20px;
   position: relative;
-  transform: translateZ(0); /* Fix fractional pixel overflow on zoom */
+  
   will-change: transform;
 }
 
@@ -46,7 +46,7 @@ html, body {
   background-color: transparent;
   border: none;
   max-width: 120px;
-  color: #007bff;
+  
   cursor: pointer;
   font-size: 16px;
   white-space: nowrap;

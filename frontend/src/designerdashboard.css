@@ -644,3 +644,90 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  background: white;
+  padding: 24px 32px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  text-align: center;
+  animation: scaleFade 0.25s ease forwards;
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.25s ease;
+}
+
+.btn-confirm {
+  background-color: #dc3545; /* red */
+  color: white;
+}
+.btn-confirm:disabled {
+  background-color: #a8323a;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: #6c757d; /* gray */
+  color: white;
+}
+.btn-cancel:disabled {
+  background-color: #4a4e50;
+  cursor: not-allowed;
+}
+
+@keyframes scaleFade {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reuse your success & error message styles here */
+.success-message {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.error-message {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}

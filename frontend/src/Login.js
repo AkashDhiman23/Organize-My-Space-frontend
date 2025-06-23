@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { color, motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
@@ -10,6 +10,7 @@ function Login() {
     password: "",
   });
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -41,6 +42,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
@@ -60,29 +62,33 @@ function Login() {
         }
       );
 
-      const userRole = res.data.role?.toLowerCase(); // backend must return `role`
+      setSuccess("Login successful! Redirecting...");
+      setError(null);
 
-      alert("Login successful!");
+      const userRole = res.data.role?.toLowerCase();
 
-      switch (userRole) {
-        case "admin":
-          navigate("/dashboard");
-          break;
-        case "designer":
-          navigate("/designer");
-          break;
-        case "manager":
-          navigate("/manager");
-          break;
-        case "production":
-          navigate("/production-dashboard");
-          break;
-        default:
-          navigate("/dashboard");
-      }
+      setTimeout(() => {
+        switch (userRole) {
+          case "admin":
+            navigate("/dashboard");
+            break;
+          case "designer":
+            navigate("/designer");
+            break;
+          case "manager":
+            navigate("/manager");
+            break;
+          case "production":
+            navigate("/production-dashboard");
+            break;
+          default:
+            navigate("/dashboard");
+        }
+      }, 1500);
     } catch (err) {
       console.error(err);
       setError("Invalid credentials or login failed");
+      setSuccess(null);
     } finally {
       setLoading(false);
     }
@@ -138,18 +144,18 @@ function Login() {
             </button>
           </form>
 
+          {/* Success & Error Messages */}
+          {success && <p className="success-message">{success}</p>}
           {error && <p className="error-message">{error}</p>}
 
-          <p className="signup-link">
+          <p className="signup-link" style={{ marginTop:"10px" }}>
             Don't have an account? <Link to="/signup">Sign up</Link>
           </p>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="back-button"
-          >
-            ← Back to Home
-          </button>
+         <div className="d-flex justify-content-center my-4">
+  <Link to="/" className="btn btn-dark" style={{ color: "white" }}>
+    ← Back to Home
+  </Link>
+</div>
         </motion.div>
       </div>
     </div>

@@ -1,9 +1,53 @@
-import React from "react";
+
 import { motion } from "framer-motion";
+import React, { useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const HomePage = () => {
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    enquiry_text: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await fetch("http://localhost:8000/accounts/enquiries/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || "Failed to submit enquiry");
+      }
+
+      setSuccess("Thanks for reaching out! We'll get back to you soon.");
+      setForm({ name: "", email: "", enquiry_text: "" });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <div style={styles.container}>
       {/* Navbar */}
@@ -14,8 +58,17 @@ const HomePage = () => {
           </a>
         </div>
         <div style={styles.navLinksContainer}>
-          <a href="#about" style={styles.navLink}>About</a>
-          <a href="/" style={styles.navLink}>Contact</a>
+
+         <a
+  href="#get-in-touch"
+  style={styles.navLink}
+  onClick={(e) => {
+    e.preventDefault();
+    document.getElementById('get-in-touch')?.scrollIntoView({ behavior: 'smooth' });
+  }}
+>
+  Contact
+</a>
           <a href="/login" style={styles.navLink}>Sign in</a>
         </div>
       </nav>
@@ -69,13 +122,7 @@ const HomePage = () => {
           <h2>Experience Stylish Home Organizing</h2>
           <p>Revolutionize the way you manage your data with our innovative solutions.</p>
           <div style={styles.callToAction}>
-            <motion.button
-              style={styles.ctaButton}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Learn more
-            </motion.button>
+            
           </div>
         </div>
       </div>
@@ -134,31 +181,83 @@ const HomePage = () => {
       </div>
 
       {/* Enquiry Form Section */}
-      <div style={styles.enquirySection}>
-        <h2 style={styles.enquiryTitle}>Get in Touch</h2>
-        <p style={styles.enquiryText}>We'd love to hear from you! Fill out the form below and we'll get back to you as soon as possible.</p>
-        <form style={styles.enquiryForm}>
-          <motion.input type="text" placeholder="Your Name" style={styles.inputField} whileHover={{ scale: 1.05 }} />
-          <motion.input type="email" placeholder="Your Email" style={styles.inputField} whileHover={{ scale: 1.05 }} />
-          <motion.textarea placeholder="Your Enquiry" style={styles.textareaField} whileHover={{ scale: 1.05 }} />
-          <motion.button type="submit" style={styles.ctaButton} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            Submit
-          </motion.button>
-        </form>
-      </div>
+         <div id="get-in-touch" style={styles.enquirySection}>
+      <h2 style={styles.enquiryTitle}>Get in Touch</h2>
+      <p style={styles.enquiryText}>
+        We'd love to hear from you! Fill out the form below and we'll get back
+        to you as soon as possible.
+      </p>
+      <form style={styles.enquiryForm} onSubmit={handleSubmit}>
+        <motion.input
+          type="text"
+          name="name"
+          placeholder="Your Name"
+          style={styles.inputField}
+          value={form.name}
+          onChange={handleChange}
+          whileHover={{ scale: 1.05 }}
+          required
+        />
+        <motion.input
+          type="email"
+          name="email"
+          placeholder="Your Email"
+          style={styles.inputField}
+          value={form.email}
+          onChange={handleChange}
+          whileHover={{ scale: 1.05 }}
+          required
+        />
+        <motion.textarea
+          name="enquiry_text"
+          placeholder="Your Enquiry"
+          style={styles.textareaField}
+          value={form.enquiry_text}
+          onChange={handleChange}
+          whileHover={{ scale: 1.05 }}
+          required
+        />
+        <motion.button
+          type="submit"
+          style={styles.ctaButton}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          disabled={loading}
+        >
+          {loading ? "Submitting…" : "Submit"}
+        </motion.button>
+      </form>
+
+      {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
+      {success && <p style={{ color: "green", marginTop: 10 }}>{success}</p>}
+    </div>
+
 
       {/* Footer */}
-      <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <div style={styles.companyDetails}>
-            <h3 style={styles.companyName}>Organize My Space</h3>
-            <p style={styles.companyAddress}>1234 Street Name, City, Country</p>
-            <p style={styles.companyPhone}>Phone: (123) 456-7890</p>
-            <p style={styles.companyEmail}>Email: support@organize.com</p>
-          </div>
-          <p style={styles.footerText}>© 2025 Organize My Space. All rights reserved.</p>
-        </div>
-      </footer>
+     <footer style={styles.footer}>
+  <div style={styles.footerContainer}>
+    <div style={styles.footerLeft}>
+      <img src="/images/logo.png" alt="Logo" style={styles.logo} />
+      <h3 style={styles.footerLogo}>Organize My Space</h3>
+      <p style={styles.footerTagline}>Simplifying your life, one space at a time.</p>
+    </div>
+
+    <div style={styles.footerMiddle}>
+      <p style={styles.footerItem}>1234 Street Name, City, Country</p>
+      <p style={styles.footerItem}>Phone: (123) 456-7890</p>
+      <p style={styles.footerItem}>Email: organizemyyspace@gmail.com</p>
+    </div>
+  </div>
+
+  {/* ✅ Bottom full-width copyright section */}
+  <div style={styles.footerBottom}>
+    <p style={styles.footerNote}>© 2025 Organize My Space</p>
+    <p style={styles.footerNote}>All rights reserved.</p>
+  </div>
+</footer>
+
+
+
     </div>
   );
 };
@@ -350,44 +449,105 @@ navLink: {
     resize: "none",
   },
   footer: {
-    padding: "20px",
-    backgroundColor: "#1f1f1f",
-    color: "#f5f5f5",
-    position: "relative",
-    minHeight: "120px",
-  },
+  backgroundColor: "#0e0e0e",
+  color: "#e5e5e5",
+  padding: "50px 20px",
+  fontFamily: "'Segoe UI', sans-serif",
+  fontSize: "0.95rem",
+  borderTop: "1px solid #333",
+},
 
-  footerContent: {
-    display: "flex",
-    justifyContent: "space-between",
-    textAlign: "left",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    flexWrap: "wrap",
-    alignItems: "flex-end", // Align all items to bottom
-  },
+footerContainer: {
+  maxWidth: "1200px",
+  margin: "0 auto",
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "60px",
+},
 
-  companyDetails: {
-    flex: "1",
-  },
+footerLeft: {
+  flex: "1 1 250px",
+  minWidth: "250px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+},
 
-  companyName: {
-    fontSize: "1.8rem",
-    fontWeight: "bold",
-    marginBottom: "10px",
-  },
+footerLogo: {
+  fontSize: "1.8rem",
+  fontWeight: "700",
+  marginTop: "10px",
+  marginBottom: "5px",
+  color: "#ffffff",
+},
 
-  companyAddress: { fontSize: "1rem", marginBottom: "5px" },
-  companyPhone: { fontSize: "1rem", marginBottom: "5px" },
-  companyEmail: { fontSize: "1rem" },
+footerTagline: {
+  color: "#aaa",
+  marginBottom: "20px",
+  fontSize: "1rem",
+},
 
-  footerText: {
-    fontSize: "0.9rem",
-    color: "#ccc", // brighter color for better contrast
-    whiteSpace: "nowrap",
-    margin: 0,
+footerMiddle: {
+  flex: "1 1 250px",
+  minWidth: "250px",
+  display: "flex",
+  flexDirection: "column",
+},
+
+footerItem: {
+  marginBottom: "8px",
+  color: "#dcdcdc",
+  lineHeight: "1.5",
+},
+
+footerRight: {
+  flex: "1 1 250px",
+  minWidth: "250px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+},
+
+footerNote: {
+  color: "#999",
+  marginBottom: "5px",
+  fontSize: "0.85rem",
+},
+
+logo: {
+  height: "80px",
+  marginBottom: "10px",
+  
+},
+footerBottom: {
+  marginTop: "30px",
+  textAlign: "center",
+  borderTop: "1px solid #333",
+  paddingTop: "15px",
+},
+
+
+// Responsive
+"@media (max-width: 768px)": {
+  footerContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    textAlign: "center",
   },
+  footerLeft: {
+    alignItems: "center",
+  },
+  footerMiddle: {
+    alignItems: "center",
+  },
+  footerRight: {
+    alignItems: "center",
+  },
+},
 
 };
+
 
 export default HomePage;

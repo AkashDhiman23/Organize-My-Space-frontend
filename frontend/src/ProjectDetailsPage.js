@@ -179,7 +179,7 @@ function ProjectDetail() {
           <i className="bi bi-arrow-left-short" aria-hidden="true" /> Back
         </button>
 
-        <h2 className="customer-name-header">{`Customer – ${customer?.name || "Customer"}`}</h2>
+        <h2 className="customer-name-header">{`Product name  – ${size?.productName }`}</h2>
 
         <span className="drawings-count" aria-live="polite">
           {drawingsCount}/4 drawings
@@ -242,13 +242,7 @@ function ProjectDetail() {
           <section className="form-section" aria-labelledby="material-heading">
             <h4 id="material-heading">Material</h4>
 
-            <label htmlFor="materialName">Product name</label>
-            <input
-              id="materialName"
-              type="text"
-              value={productName}
-              onChange={(e) => handleChange("productName", e.target.value)}
-            />
+            
 
             <div className="two-col">
               <label htmlFor="bodyColor">Body Colour</label>
@@ -258,6 +252,7 @@ function ProjectDetail() {
                 value={bodyColor}
                 onChange={(e) => handleChange("bodyColor", e.target.value)}
               />
+              
 
               <label htmlFor="doorColor">Door Colour</label>
               <input
@@ -266,9 +261,9 @@ function ProjectDetail() {
                 value={doorColor}
                 onChange={(e) => handleChange("doorColor", e.target.value)}
               />
-            </div>
+           
 
-            <div className="two-col">
+           
               <label htmlFor="bodyMaterial">Body Material</label>
               <input
                 id="bodyMaterial"
@@ -284,7 +279,7 @@ function ProjectDetail() {
                 value={doorMaterial}
                 onChange={(e) => handleChange("doorMaterial", e.target.value)}
               />
-            </div>
+         </div>
           </section>
 
           <p className="mt-2" id="square-footage">

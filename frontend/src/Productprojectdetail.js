@@ -271,9 +271,9 @@ function ProductionProjectDetail() {
           <i className="bi bi-arrow-left-short" /> Back
         </button>
 
-        <h2 className="customer-name-header">
-          Customer – {customer?.name || "Customer"}
-        </h2>
+     
+            <h2 className="customer-name-header">{`Product name  – ${size?.productName }`}</h2>
+       
 
         <span className="drawings-count">
           {productionImagesCount}/4 production images

@@ -614,4 +614,126 @@ body, html, #root {
 }
 
 
+/* Container for charts under cards */
+.charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 24px;
+}
 
+.chart-box {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart-title {
+  margin: 4px 0 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+
+/* Two-column grid */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr; /* left 45%, right 55%  */
+  gap: 2rem;
+}
+@media (max-width: 800px) {
+  .dash-grid { grid-template-columns: 1fr; } /* stack on small */
+}
+
+/* charts stack */
+.charts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* date filter row */
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.clear-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 0.8;
+}
+
+/* chart box */
+.chart-box {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart-title {
+  margin: 4px 0 12px;
+  font-weight: 600;
+}
+
+/* optional accent for the “new customers” card */
+.highlight-card { background: #f0fbff; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* === Date-filter block =============================== */
+.date-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;         /* stack nicely on mobile */
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;  /* space below */
+  font-size: 0.95rem;
+}
+
+.date-filter label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.date-filter input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 4px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.date-filter input[type="date"]:hover,
+.date-filter input[type="date"]:focus {
+  border-color: #4e79a7;
+  outline: none;
+}
