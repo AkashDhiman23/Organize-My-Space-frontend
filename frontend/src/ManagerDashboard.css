@@ -119,7 +119,7 @@ body, html, #root {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #1abc9c;
+  color: #34495e;
   font-weight: 700;
   user-select: none;
   cursor: default;
@@ -219,27 +219,28 @@ body, html, #root {
   gap: 1rem;
 }
 
-.form-group {
+.add-customer-group {
   display: flex;
   flex-direction: column;
 }
 
-.form-group label {
+.add-customer-group label {
   margin-bottom: 0.3rem;
   font-weight: 600;
 }
 
-.form-group input,
-.form-group textarea {
+.add-customer-group input,
+.add-customer-group textarea {
   padding: 0.5rem;
   font-size: 1rem;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
-.form-group.full-width textarea {
+.add-customer-group.full-width textarea {
   resize: vertical;
 }
+
 
 .btn-submit {
   display: block;
@@ -736,4 +737,30 @@ body, html, #root {
 .date-filter input[type="date"]:focus {
   border-color: #4e79a7;
   outline: none;
+}
+
+
+.status-badge {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-badge.pending {
+  background-color: #ff9800;
+}
+.status-badge.assigned {
+  background-color: #2196f3;
+}
+.status-badge.in-design {
+  background-color: #ffc107;
+  color: black;
+}
+.status-badge.in-production {
+  background-color: #9c27b0;
+}
+.status-badge.completed {
+  background-color: #4caf50;
 }

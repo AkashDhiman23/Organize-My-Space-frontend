@@ -731,3 +731,51 @@
   border-radius: 8px;
   font-weight: 600;
 }
+
+
+
+.status-badge {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background-color: #ff9800;
+}
+
+.status-badge.assigned {
+  background-color: #2196f3;
+}
+
+.status-badge.in-design {
+  background-color: #ffc107;
+  color: black;
+}
+
+.status-badge.in-production {
+  background-color: #9c27b0;
+}
+
+.status-badge.completed {
+  background-color: #4caf50;
+}
+
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  
+  /* keep your existing styles */
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 1.25rem;
+  border-radius: 8px;
+
+  
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}

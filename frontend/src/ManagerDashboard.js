@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; 
-import "./ManagerDashboard.css";
+import "./Projectdetails.css";
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 
 
@@ -23,6 +23,8 @@ function ManagerDashboard() {
   const [productions, setProductions] = useState([]);
   const [existingLogoUrl, setExistingLogoUrl] = useState(null);
   const [message, setMessage] = useState(null); 
+  
+    const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [deleteNotes, setDeleteNotes] = useState({});
@@ -33,6 +35,20 @@ function ManagerDashboard() {
     company_logo: "",
 
   });
+
+ 
+const [projectSearch, setProjectSearch] = useState("");
+const [selectedStatus, setSelectedStatus] = useState("All");
+
+const filteredProjects = projects.filter(
+  (p) =>
+    (selectedStatus === "All" || p.status === selectedStatus) &&
+    (
+      p.customer_name?.toLowerCase().includes(projectSearch.toLowerCase()) ||
+      p.product_name?.toLowerCase().includes(projectSearch.toLowerCase())
+    )
+);
+
 
   
 
@@ -155,6 +171,7 @@ const completedProjects  = projects.filter(
       company_name: company.company_name || "",
       address:      company.address      || "",
       gst_details:  company.gst_details  || "",
+      company_logo :company.company_logo || "",
     });
 
     if (company.company_logo) {
@@ -351,40 +368,35 @@ async function handleLogout() {
       alert("Failed to update status.");
     }
   };
+const [successMsg, setSuccessMsg] = useState("");
 
-  const assignDesigner = async (projectId, designerId) => {
-    try {
-      await axios.patch(
-        `http://localhost:8000/accounts/projects-assign/${projectId}/`,
-        { assigned_designer: designerId },
-        { withCredentials: true }
-      );
-      fetchProjects();
-    } catch (error) {
-      console.error("Failed to assign designer:", error);
-      alert("Failed to assign designer. Please try again.");
-    }
-  };
-
-  async function assignProduction(projectId, productionId) {
-    try {
-      await axios.patch(
-        `http://localhost:8000/accounts/projects-assign-production/${projectId}/`,
-        { assigned_production: productionId || null },
-        { withCredentials: true }
-      );
-
-      // Refresh projects array or optimistically update state:
-      setProjects((prev) =>
-        prev.map((p) =>
-          p.id === projectId ? { ...p, assigned_production: productionId } : p
-        )
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Failed to assign production.");
-    }
+const assignDesigner = async (projectId, designerId) => {
+  try {
+    await axios.patch(
+      `http://localhost:8000/accounts/projects-assign/${projectId}/`,
+      { assigned_designer: designerId },
+      { withCredentials: true }
+    );
+    setSuccessMsg(" Designer assigned successfully.");
+    fetchProjects();  // refresh list
+  } catch (error) {
+    alert(" Failed to assign designer.");
   }
+};
+
+const assignProduction = async (projectId, productionId) => {
+  try {
+    await axios.patch(
+      `http://localhost:8000/accounts/projects-assign-production/${projectId}/`,
+      { assigned_production: productionId },
+      { withCredentials: true }
+    );
+    setSuccessMsg(" Production assigned successfully.");
+    fetchProjects(); // ensure updated list on refresh
+  } catch (err) {
+    alert(" Failed to assign production.");
+  }
+};
   /* Data for charts */
 const projectPieData = [
   { name: "Assigned",   value: assignedProjects },
@@ -483,23 +495,30 @@ function handleLogoutCancel() {
       <main className="main-area">
         <nav className="top-navbar">
           <div className="company-logo d-flex align-items-center gap-2">
-  {logoUrl ? (
-    <img
-      src={logoUrl}
-      alt="Company Logo"
-      style={{ height: 32, width: 32, objectFit: "contain", borderRadius: 6 }}
-    />
-  ) : (
-    <i className="bi bi-building fs-5 text-secondary"></i> 
-  )}
+     {logoPreviewUrl ? (
+                <img
+                  src={logoPreviewUrl}
+                  alt="Company Logo Preview"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              ) : existingLogoUrl ? (
+                <img
+                  src={existingLogoUrl}
+                  alt="Company Logo"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              ) : (
+                <i className="bi bi-building fs-1 text-secondary"></i>
+              )}
   <span>{profileCompany?.company_name || "Your Company"}</span>
 </div>
 
           
-          <div className="user-profile">
-            <span className="user-name">{profile?.full_name || "—"}</span>
-
-          </div>
+          
+          {/* Right side: welcome message */}
+  <div className="welcome-text" style={{ fontWeight: "800", fontSize: "1.5rem", color: "#333" }}>
+    Welcome to Manager Dashboard
+  </div>
         </nav>
 
         <div className="main-content">
@@ -616,7 +635,7 @@ function handleLogoutCancel() {
               <div className="form-grid">
                 {/* Left side: Customer Info */}
                 <section className="customer-info">
-                  <div className="form-group">
+                  <div className="add-customer-group">
                     <label htmlFor="name">Name</label>
                     <input
                       id="name"
@@ -626,7 +645,7 @@ function handleLogoutCancel() {
                       required
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="add-customer-group">
                     <label htmlFor="email">Email</label>
                     <input
                       id="email"
@@ -636,7 +655,7 @@ function handleLogoutCancel() {
                       required
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="add-customer-group">
                     <label htmlFor="contact_number">Contact Number</label>
                     <input
                       id="contact_number"
@@ -646,7 +665,7 @@ function handleLogoutCancel() {
                       required
                     />
                   </div>
-                  <div className="form-group full-width">
+                  <div className="add-customer-group full-width">
                     <label htmlFor="address">Address</label>
                     <textarea
                       id="address"
@@ -662,7 +681,7 @@ function handleLogoutCancel() {
                   <h4>Project Details</h4>
 
                   <div className="product-grid">
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="product_name">Product Name</label>
                       <input
                         id="product_name"
@@ -671,7 +690,7 @@ function handleLogoutCancel() {
                                                 onChange={(e) => setNewCustomer({ ...newCustomer, product_name: e.target.value })}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="length_ft">Height (ft)</label>
                       <input
                         id="length_ft"
@@ -681,7 +700,7 @@ function handleLogoutCancel() {
                         onChange={(e) => setNewCustomer({ ...newCustomer, length_ft: e.target.value })}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="width_ft">Width (ft)</label>
                       <input
                         id="width_ft"
@@ -692,7 +711,7 @@ function handleLogoutCancel() {
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="depth_in">Depth (in)</label>
                       <input
                         id="depth_in"
@@ -703,7 +722,7 @@ function handleLogoutCancel() {
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="body_color">Body Color</label>
                       <input
                         id="body_color"
@@ -713,7 +732,7 @@ function handleLogoutCancel() {
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="door_color">Door Color</label>
                       <input
                         id="door_color"
@@ -722,7 +741,7 @@ function handleLogoutCancel() {
                         onChange={(e) => setNewCustomer({ ...newCustomer, door_color: e.target.value })}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="body_material">Body Material</label>
                       <input
                         id="body_material"
@@ -731,7 +750,7 @@ function handleLogoutCancel() {
                         onChange={(e) => setNewCustomer({ ...newCustomer, body_material: e.target.value })}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="door_material">Door Material</label>
                       <input
                         id="door_material"
@@ -741,7 +760,7 @@ function handleLogoutCancel() {
                       />
                     </div>
 
-                    <div className="form-group">
+                    <div className="add-customer-group">
                       <label htmlFor="deadline_date">Project Deadline</label>
                       <input
                         id="deadline_date"
@@ -760,110 +779,122 @@ function handleLogoutCancel() {
             </form>
           )}
 
-          {/* Projects */}
-          {activeTab === "projects" && (
-            <div>
-              <h2>Projects</h2>
+      {activeTab === "projects" && (
+  <div>
+       <h2>Projects</h2>
 
-              {projects.length === 0 ? (
-                <p>No projects found.</p>
-              ) : (
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Project&nbsp;ID</th>
-                      <th>Customer</th>
-                      <th>Product&nbsp;Name</th>
-                      <th>Status</th>
-                      <th>Assigned&nbsp;Designer</th>
-                      <th>Assign&nbsp;to&nbsp;Designer</th>
-                      <th>Assigned&nbsp;Production</th>
-                      <th>Assign&nbsp;to&nbsp;Production</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
+     
 
-                  <tbody>
-                    {projects.map((proj) => {
-                      const assignedDesigner = designers.find(d => d.id === proj.assigned_designer);
-                      const assignedProduction = productions.find(p => p.id === proj.assigned_production);
+      {/* ✅ Bootstrap Horizontal Tabs */}
+      <ul className="nav nav-tabs mb-3">
+        {["All", "Pending", "In Design","In Production", "Completed"].map((status) => (
+          <li className="nav-item" key={status}>
+            <button
+              className={`nav-link ${selectedStatus === status ? "active" : ""}`}
+              onClick={() => setSelectedStatus(status)}
+            >
+              {status}
+            </button>
+          </li>
+        ))}
+      </ul>
 
-                      return (
-                        <tr key={proj.id}>
-                          <td>{proj.id}</td>
-                          <td>{proj.customer_name || proj.customer}</td>
-                          <td>{proj.product_name}</td>
-                          <td>{proj.status}</td>
+      {/* ✅ Search Input */}
+      <input
+        type="search"
+        className="form-control mb-3"
+        placeholder="Search by customer or product..."
+        value={projectSearch}
+        onChange={(e) => setProjectSearch(e.target.value)}
+      />
 
-                          {/* designer cells */}
-                          <td>{assignedDesigner ? assignedDesigner.full_name : "None"}</td>
-                          <td>
-                            <select
-                              value={proj.assigned_designer || ""}
-                              onChange={(e) => assignDesigner(proj.id, e.target.value)}
-                              disabled={!!proj.assigned_designer}   // disable if already assigned
-                            >
-                              <option value="">-- Select Designer --</option>
-                              {designers.map((d) => (
-                                <option key={d.id} value={d.id}>{d.full_name}</option>
-                              ))}
-                            </select>
-                          </td>
+      {/* ✅ Table */}
+      {filteredProjects.length === 0 ? (
+        <p>No projects found.</p>
+      ) : (
+        <table className="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Project ID</th>
+              <th>Customer</th>
+              <th>Product Name</th>
+              <th>Status</th>
+              <th>Assigned Designer</th>
+              <th>Assign to Designer</th>
+              <th>Assigned Production</th>
+              <th>Assign to Production</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredProjects.map((proj) => {
+              const assignedDesigner = designers.find((d) => d.id === proj.assigned_designer);
+              const assignedProduction = productions.find((p) => p.id === proj.assigned_production);
 
-                          {/* production cells */}
-                          <td>{assignedProduction ? assignedProduction.full_name : "None"}</td>
-                          <td>
-                            <select
-                              value={proj.assigned_production || ""}
-                              onChange={(e) => assignProduction(proj.id, e.target.value)}
-                              disabled={!!proj.assigned_production} // disable if already assigned
-                            >
-                              <option value="">-- Select Production --</option>
-                              {productions.map((p) => (
-                                <option key={p.id} value={p.id}>{p.full_name}</option>
-                              ))}
-                            </select>
-                          </td>
-
-                          <td>
-                            <a
-                              href="#"
-                              className="btn-link"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                navigate(`/project-details-manager/${proj.customer}`);
-                              }}
-                              title="View Project Details"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="btn-icon"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                width="16"
-                                height="16"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M8 16h8M8 12h8m-8-4h8M4 20h16a2 2 0 002-2v-6a2 2 0 00-2-2H4a2 2 0 00-2 2v6a2 2 0 002 2z"
-                                />
-                              </svg>
-                              Project Details
-                            </a>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
-
+              return (
+                <tr key={proj.id}>
+                  <td>{proj.id}</td>
+                  <td>{proj.customer_name || proj.customer}</td>
+                  <td>{proj.product_name}</td>
+                  <td>
+                    <span
+                      className={`badge status-badge ${proj.status.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {proj.status}
+                    </span>
+                  </td>
+                  <td>{assignedDesigner ? assignedDesigner.full_name : "None"}</td>
+                  <td>
+                    <select
+                      value={proj.assigned_designer || ""}
+                      onChange={(e) => assignDesigner(proj.id, e.target.value)}
+                      disabled={!!proj.assigned_designer}
+                      className="form-select"
+                    >
+                      <option value="">-- Select Designer --</option>
+                      {designers.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.full_name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>{assignedProduction ? assignedProduction.full_name : "None"}</td>
+                  <td>
+                    <select
+                      value={proj.assigned_production || ""}
+                      onChange={(e) => assignProduction(proj.id, e.target.value)}
+                      disabled={!!proj.assigned_production}
+                      className="form-select"
+                    >
+                      <option value="">-- Select Production --</option>
+                      {productions.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.full_name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/project-details-manager/${proj.customer}`);
+                      }}
+                      className="btn btn-sm btn-primary"
+                    >
+                      View Details
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>
+      )}
           {/* Team Members */}
           {activeTab === "team" && (
   <div className="team-section">
@@ -942,7 +973,22 @@ function handleLogoutCancel() {
           {/* Avatar + quick info */}
           <div className="col-lg-4 text-center">
             <div className="avatar-circle mx-auto mb-3">
-              <i className="bi bi-person-fill"></i>
+               {logoPreviewUrl ? (
+                <img
+                  src={logoPreviewUrl}
+                  alt="Company Logo Preview"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              ) : existingLogoUrl ? (
+                <img
+                  src={existingLogoUrl}
+                  alt="Company Logo"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              ) : (
+                <i className="bi bi-building fs-1 text-secondary"></i>
+              )}
+            
             </div>
             <h4 className="fw-semibold mb-1">{profile.full_name || "—"}</h4>
             <span className="badge bg-primary-soft text-primary px-3 py-1 mb-2">
@@ -1060,6 +1106,7 @@ function handleLogoutCancel() {
   </div>
 )}
       
+      {successMsg && <div className="alert alert-success mb-2">{successMsg}</div>}
  
 
 

@@ -291,3 +291,25 @@ body, html {
 .sidebar-right::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+.message-box {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  max-width: 500px;
+}
+
+.msg-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+.msg-error {
+  background-color: #f8d7da;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+}

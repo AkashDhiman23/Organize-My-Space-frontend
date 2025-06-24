@@ -317,48 +317,58 @@ function ProjectDetail() {
             * Minimum 2 drawings required to save
           </p>
         </div>
+<aside className="container my-5" aria-label="Project drawings">
+  <h4 className="mb-4 fw-semibold">Drawings</h4>
 
-        <aside className="pd-drawings" aria-label="Project drawings">
-          <h4>Drawings</h4>
-
-          {loadingDrawings ? (
-            <p className="text-muted">Loading…</p>
-          ) : drawingsCount === 0 ? (
-            <p className="text-muted">No drawings added yet.</p>
-          ) : (
-            <div className="draw-grid">
-              {drawings.map((d) => (
-                <div key={d.id} className="draw-card">
-                  {d.image_url ? (
-                    <img src={d.image_url} alt={`Drawing ${d.drawing_num}`} />
-                  ) : (
-                    <i className="bi bi-file-earmark-text display-6 text-secondary" aria-hidden="true" />
-                  )}
-
-                  <div className="draw-links">
-                    <a
-                      href={d.file}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-eye" aria-hidden="true" />
-                      View Drawing {d.drawing_num}
-                    </a>
-                    <a
-                      href={d.file}
-                      download
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-download" aria-hidden="true" />
-                      Download
-                    </a>
-                  </div>
-                </div>
-              ))}
+  {loadingDrawings ? (
+    <p className="text-muted">Loading…</p>
+  ) : drawingsCount === 0 ? (
+    <p className="text-muted">No drawings added yet.</p>
+  ) : (
+    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+      {drawings.map((d) => (
+        <div key={d.id} className="col">
+          <div className="card h-100 shadow-sm border-0 rounded-3 p-2">
+            {d.image_url ? (
+              <img
+                src={d.image_url}
+                alt={`Drawing ${d.drawing_num}`}
+                className="card-img-top rounded"
+                style={{ objectFit: "cover", height: "140px" }}
+              />
+            ) : (
+              <div className="d-flex justify-content-center align-items-center bg-light rounded" style={{ height: "140px" }}>
+                <i className="bi bi-file-earmark-text display-4 text-secondary" aria-hidden="true" />
+              </div>
+            )}
+            <div className="card-body">
+              <h6 className="card-title">Drawing {d.drawing_num}</h6>
+              <div className="d-flex flex-column gap-2">
+                <a
+                  href={d.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline-primary btn-sm"
+                >
+                  <i className="bi bi-eye me-1" aria-hidden="true" />
+                  View
+                </a>
+                <a
+                  href={d.file}
+                  download
+                  className="btn btn-outline-secondary btn-sm"
+                >
+                  <i className="bi bi-download me-1" aria-hidden="true" />
+                  Download
+                </a>
+              </div>
             </div>
-          )}
-        </aside>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</aside>
       </div>
     </div>
   );

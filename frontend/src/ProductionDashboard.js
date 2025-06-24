@@ -21,10 +21,19 @@ function ProductionDashboard() {
     gst_details:  "",
   });
 
+
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+
   const [customers, setCustomers] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
+  const [existingLogoUrl, setExistingLogoUrl] = useState(null);
+    const [message, setMessage] = useState(null); 
+    
+      const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
+  
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 const [logoutLoading, setLogoutLoading] = useState(false);
@@ -74,22 +83,49 @@ const [logoutLoading, setLogoutLoading] = useState(false);
       (c.contact_number && c.contact_number.includes(custSearch))
     )
   );
- const fetchAll = useCallback(async () => {
-    const [custRes, memberRes] = await Promise.all([
-      axios.get("http://localhost:8000/accounts/all-customers/",   { withCredentials: true }),
-      axios.get("http://localhost:8000/accounts/member-profile/",  { withCredentials: true }),
-    ]);
-    setCustomers(custRes.data);
-    setMember(memberRes.data.member);
-    setCompany(memberRes.data.company);
-  }, []);
+  
+useEffect(() => {
+  (async () => {
+    try {
+      const [custRes, memberRes] = await Promise.all([
+        axios.get("http://localhost:8000/accounts/all-customers/", { withCredentials: true }),
+        axios.get("http://localhost:8000/accounts/member-profile/", { withCredentials: true }),
+      ]);
 
-  useEffect(() => {
-    fetchAll().catch((err) => {
+      setCustomers(custRes.data);
+      setMember(memberRes.data.member);             
+      setCompany(memberRes.data.company);
+
+      // ✅ Safely handle company logo after setting it
+      const companyData = memberRes.data.company;
+
+      if (companyData && companyData.company_logo) {
+        let logoUrl = "";
+
+        if (companyData.company_logo.startsWith("http")) {
+          logoUrl = companyData.company_logo;
+        } else if (companyData.company_logo.startsWith("/")) {
+          logoUrl = `http://localhost:8000${companyData.company_logo}`;
+        } else {
+          logoUrl = `http://localhost:8000/media/${companyData.company_logo}`;
+        }
+
+        setExistingLogoUrl(logoUrl);
+      } else {
+        setExistingLogoUrl(null);
+      }
+    } catch (err) {
       console.error(err);
       alert("Failed to fetch data");
-    });
-  }, [fetchAll]);
+    }
+  })();
+}, []);
+
+
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+ const [logoutMsg, setLogoutMsg] = useState(null);
+ const [loggingOut, setLoggingOut] = useState(false);
+ 
 
   // State for confirmation modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -101,6 +137,22 @@ const [logoutLoading, setLogoutLoading] = useState(false);
     setSelectedCustomerId(customerId);
     setShowConfirmModal(true);
   };
+
+
+
+  
+
+function handleLogoutConfirm() {
+  setShowLogoutConfirm(true);
+}
+
+function handleLogoutCancel() {
+  setShowLogoutConfirm(false);
+  setLogoutMsg(null);
+}
+
+
+  
 
   // Confirm action: update status and close modal
  // Confirm action: update status and close modal
@@ -122,7 +174,7 @@ const [logoutLoading, setLogoutLoading] = useState(false);
       );
 
       /* 🔄  auto‑refresh customers from backend */
-      await fetchAll();
+      // await fetchAll();
 
       setSuccessMessage("Project marked Completed and sent to the manager.");
     } catch (err) {
@@ -160,28 +212,38 @@ function getCookie(name) {
 
 // In your React code:
 const csrftoken = getCookie('csrftoken');
+async function handleLogout() {
+  setLoggingOut(true);
+  setLogoutMsg(null);
 
+  try {
+    const response = await fetch("http://localhost:8000/accounts/logout/", {
+      method: "POST",
+      credentials: "include",
+    });
 
-  async function handleLogout() {
-    try {
-      const response = await fetch('http://localhost:8000/accounts/logout/', {
-        method: 'POST',
-        credentials: 'include', // Sends session cookie
-      });
+    const data = await response.json();
 
-      const data = await response.json();
+    if (response.ok) {
+      setLogoutMsg({ type: "success", text: data.message || "Logged out successfully." });
 
-      if (response.ok) {
-        alert(data.message); 
-        window.location.href = '/login'; // Redirect to login
-      } else {
-        alert("Logout failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert("Something went wrong.");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 10);
+    } else {
+      setLogoutMsg({ type: "error", text: "Logout failed. Please try again." });
     }
+  } catch (err) {
+    console.error("Logout error:", err);
+    setLogoutMsg({ type: "error", text: "Something went wrong." });
+  } finally {
+    setLoggingOut(false);
+    setShowLogoutConfirm(false); // hide confirmation box
   }
+
+  
+}
+
 
 
   return (
@@ -191,289 +253,329 @@ const csrftoken = getCookie('csrftoken');
         <h2 className="sidebar-title">Hi, {member?.full_name || "User"}</h2>
         <hr className="sidebar-divider" />
 
-        <ul className="sidebar-menu">
-          <li className={`nav-item ${isClientsPage ? "active" : ""}`} onClick={() => navigate("/clients")}>
-            <i className="bi bi-speedometer2" /> Dashboard
-          </li>
-          <li className={`nav-item ${isActive("/my-projects") ? "active" : ""}`} onClick={() => navigate("/my-projects")}>
-            <i className="bi bi-folder2-open" /> Projects
-          </li>
-        
-        
-          <li className={`nav-item ${isActive("/designer-profile") ? "active" : ""}`} onClick={() => navigate("/company-profile")}>
-            <i className="bi bi-person-badge" /> My Profile
-          </li>
-         <li className="nav-item" onClick={handleLogout}>
+       <ul className="sidebar-menu">
+  <li
+    className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
+    onClick={() => setActiveTab("dashboard")}
+    role="button"
+  >
+    <i className="bi bi-speedometer2" /> Dashboard
+  </li>
+
+  <li
+    className={`nav-item ${activeTab === "projects" ? "active" : ""}`}
+    onClick={() => setActiveTab("projects")}
+    role="button"
+  >
+    <i className="bi bi-folder2-open" /> Projects
+  </li>
+
+  <li
+    className={`nav-item ${activeTab === "profile" ? "active" : ""}`}
+    onClick={() => setActiveTab("profile")}
+    role="button"
+  >
+    <i className="bi bi-person-badge" /> My Profile
+  </li>
+
+<li
+  className="nav-item logout-item"
+  onClick={handleLogoutConfirm}
+  style={{ cursor: "pointer" }}
+>
   <i className="bi bi-box-arrow-right" /> Logout
 </li>
-
-        </ul>
+</ul>
       </aside>
 
       {/* Main area */}
       <main className="main-area">
         {/* Top navbar */}
-        <nav className="top-navbar">
-          <div className="company-logo" onClick={() => navigate("/")}>
-            <span>{ company.company_name || "Your Company"}</span>
-          </div>
-        </nav>
+      <nav className="top-navbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 1rem" }}>
+  {/* Left side: logo and company name */}
+  <div className="company-logo" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+    {logoPreviewUrl ? (
+      <img
+        src={logoPreviewUrl}
+        alt="Company Logo Preview"
+        style={{ maxWidth: '100%', maxHeight: '100%' }}
+      />
+    ) : existingLogoUrl ? (
+      <img
+        src={existingLogoUrl}
+        alt="Company Logo"
+        style={{ maxWidth: '100%', maxHeight: '100%' }}
+      />
+    ) : (
+      <i className="bi bi-building fs-1 text-secondary"></i>
+    )}
+    <span>{company.company_name || "Your Company"}</span>
+  </div>
+
+  {/* Right side: welcome message */}
+  <div className="welcome-text" style={{ fontWeight: "800", fontSize: "1.5rem", color: "#333" }}>
+    Welcome to Production Dashboard
+  </div>
+</nav>
+
 
         {/* Content */}
         <div className="main-content">
-          {isCompanyPage ? (
-            <section className="company-profile-card">
-  <h3>My Profile</h3>
+      {activeTab === "profile" && (
+  <div className="profile-section">
+    <h2>Profile</h2>
 
-  <p><strong>Role:</strong>       {member?.role || "—"}</p>
-  <p><strong>Full Name:</strong> {member?.full_name || "—"}</p>
-  <p><strong>Email:</strong>     {member?.email || "—"}</p>
-
-  <hr />
-
-  <h4>Company Info</h4>
-  <p><strong>Name:</strong>    {company.company_name || "—"}</p>
-  <p><strong>Address:</strong> {company.address       || "—"}</p>
-  <p><strong>GST No.:</strong> {company.gst_details   || "—"}</p>
-</section>
-          ) : isClientsPage ? (
-            <section className="clients-container container py-4 d-flex">
-              {/* Left Sidebar */}
-              <aside className="clients-sidebar p-4 me-6">
-                <h4 className="sidebar-title mb-3">Client Filters</h4>
-                <input
-                  type="text"
-                  placeholder="Search clients..."
-                  className="search-input mb-2"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+    {member ? (
+      <section
+        className="profile-card bg-white shadow-sm rounded-4 px-4 py-5 my-4 mx-auto"
+        style={{ maxWidth: "900px" }}
+      >
+        <div className="row gy-5 gx-4 align-items-start">
+          {/* Avatar + quick info */}
+          <div className="col-lg-4 text-center">
+            <div className="avatar-circle mx-auto mb-3">
+              {logoPreviewUrl ? (
+                <img
+                  src={logoPreviewUrl}
+                  alt="Company Logo Preview"
+                  style={{ maxWidth: "100%", maxHeight: "100%" }}
                 />
-                <p className="filter-info text-muted">Filter and manage your clients easily.</p>
-              </aside>
+              ) : existingLogoUrl ? (
+                <img
+                  src={existingLogoUrl}
+                  alt="Company Logo"
+                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                />
+              ) : (
+                <i className="bi bi-building fs-1 text-secondary"></i>
+              )}
+            </div>
+            <h4 className="fw-semibold mb-1">{member.full_name || "—"}</h4>
+            <span className="badge bg-primary-soft text-primary px-3 py-1 mb-2">
+              {member.role || "—"}
+            </span>
+            <p className="text-muted small mb-0">
+              <i className="bi bi-envelope me-1"></i>
+              {member.email || "—"}
+            </p>
+          </div>
 
-              {/* Right Content */}
-              <div className="clients-main flex-grow-1">
-                <h3 className="mb-4 text-secondary fw-bold">Clients Overview</h3>
+          {/* Details */}
+          <div className="col-lg-8">
+            {/* Company block */}
+            <h6 className="section-heading">
+              <i className="bi bi-building me-2"></i>Company Details
+            </h6>
+            <div className="detail-grid mb-4">
+              <div className="detail-row">
+                <span>Name</span>
+                <strong>{company.company_name || "—"}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Address</span>
+                <strong>{company.address || "—"}</strong>
+              </div>
+              <div className="detail-row">
+                <span>GST No.</span>
+                <strong>{company.gst_details || "—"}</strong>
+              </div>
+            </div>
 
-                <div className="summary-row">
-                  <div className="summary-card total-clients">
-                    <h5>Total Clients</h5>
-                    <p>{filteredCustomers.length}</p>
-                  </div>
-                  <div className="summary-card new-clients">
-                    <h5>New Clients (Last 30 days)</h5>
-                    <p>{getNewClientsCount(filteredCustomers)}</p>
-                  </div>
-                </div>
+            <h6 className="section-heading">
+              <i className="bi bi-person-lines-fill me-2"></i>Member Info
+            </h6>
+            <div className="detail-grid">
+              <div className="detail-row">
+                <span>Full Name</span>
+                <strong>{member.full_name || "—"}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Email</span>
+                <strong>{member.email || "—"}</strong>
+              </div>
+              <div className="detail-row">
+                <span>Role</span>
+                <strong>{member.role || "—"}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    ) : (
+      <p>Loading profile information...</p>
+    )}
+  </div>
+)}
+{activeTab === "dashboard" && (
+  <section className="clients-container container py-4 d-flex">
+    {/* Sidebar for filters */}
+    <aside className="clients-sidebar p-4 me-6">
+      <h4 className="sidebar-title mb-3">Client Filters</h4>
+      <input
+        type="text"
+        placeholder="Search clients..."
+        className="search-input mb-2"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <p className="filter-info text-muted">Filter and manage your clients easily.</p>
+    </aside>
 
-                {filteredCustomers.length === 0 ? (
-                  <p className="text-center text-muted">No clients found.</p>
-                ) : (
-                  <div className="table-responsive">
-                    <table className="table table-striped table-hover align-middle">
-                     <thead className="table-light">
-  <tr>
-    <th>Client Name</th>
-    <th>Email</th>
-    <th>Contact</th>
-    <th>Address</th>
-    <th>Project</th>          {/* NEW */}
-    <th>Status</th>           {/* NEW */}
-    <th>Joined</th>
-  </tr>
-</thead>
+    {/* Clients main section */}
+    <div className="clients-main flex-grow-1">
+      <h3 className="mb-4 text-secondary fw-bold">Clients Overview</h3>
+      <div className="summary-row">
+        <div className="summary-card total-clients">
+          <h5>Total Clients</h5>
+          <p>{filteredCustomers.length}</p>
+        </div>
+        <div className="summary-card new-clients">
+          <h5>New Clients (Last 30 days)</h5>
+          <p>{getNewClientsCount(filteredCustomers)}</p>
+        </div>
+      </div>
 
-<tbody>
-  {filteredCustomers.map((c) => (
-    <tr key={c.id}>
-      <td>{c.name}</td>
-      <td>{c.email}</td>
-      <td>{c.contact_number}</td>
-      <td>{c.address || "N/A"}</td>
-
-      {/* NEW cells */}
-      <td>{c.latest_project?.product_name || "—"}</td>
-      <td>
+      {filteredCustomers.length === 0 ? (
+        <p className="text-center text-muted">No clients found.</p>
+      ) : (
+        <div className="table-responsive">
+          <table className="table table-striped table-hover align-middle">
+            <thead className="table-light">
+              <tr>
+                <th>Client Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Address</th>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCustomers.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.name}</td>
+                  <td>{c.email}</td>
+                  <td>{c.contact_number}</td>
+                  <td>{c.address || "N/A"}</td>
+                  <td>{c.latest_project?.product_name || "—"}</td>
+                    <td>
         {c.latest_project ? (
-          <span
-            className={`badge ${
-              c.latest_project.status === "In Production"
-                ? "bg-secondary"
-                : c.latest_project.status === "In Design"
-                ? "bg-warning text-dark"
-                : "bg-light text-muted"
-            }`}
-            style={{ fontSize: "0.75rem" }}
-          >
-            {c.latest_project.status}
-          </span>
+           <span
+                      className={`badge status-badge ${c.latest_project.status.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {c.latest_project.status}
+                    </span>
         ) : (
           "—"
         )}
       </td>
+                  <td>{new Date(c.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  </section>
+)}
 
-      <td>{new Date(c.created_at).toLocaleDateString()}</td>
-    </tr>
-  ))}
-</tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </section>
-          ) : (
-            <section className="customer-list-section">
-              {/* Search + Sort */}
-              <div className="customer-toolbar">
-                <input
-                  type="text"
-                  placeholder="Search Customers..."
-                  className="search-input mb-2"
-                  value={custSearch}
-                  onChange={(e) => setCustSearch(e.target.value)}
-                />
-                <select
-                  className="form-select customer-sort"
-                  value={sortKey}
-                  onChange={(e) => setSortKey(e.target.value)}
+{activeTab === "projects" && (
+  <section className="customer-list-section">
+    {/* Search + Sort */}
+    <div className="customer-toolbar">
+      <input
+        type="text"
+        placeholder="Search Customers..."
+        className="search-input mb-2"
+        value={custSearch}
+        onChange={(e) => setCustSearch(e.target.value)}
+      />
+      <select
+        className="form-select customer-sort"
+        value={sortKey}
+        onChange={(e) => setSortKey(e.target.value)}
+      >
+        <option value="name">Sort • Name A-Z</option>
+        <option value="joined">Sort • Newest Joined</option>
+        <option value="updated">Sort • Recently Updated</option>
+      </select>
+    </div>
+
+    {/* Customers Table */}
+    {visibleCustomers.length === 0 ? (
+      <p className="text-muted">No customers found.</p>
+    ) : (
+      <table className="customer-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Address</th>
+            <th>Project Name</th>
+            <th>Project Status</th>
+            <th>Joined</th>
+            <th>Last Update</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {visibleCustomers.map((c) => (
+            <tr key={c.id}>
+              <td>{c.name}</td>
+              <td>{c.email}</td>
+              <td>{c.contact_number}</td>
+              <td>{c.address || "N/A"}</td>
+              <td>{c.latest_project?.product_name || "No Project"}</td>
+              <td>
+        {c.latest_project ? (
+           <span
+                      className={`badge status-badge ${c.latest_project.status.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {c.latest_project.status}
+                    </span>
+        ) : (
+          "—"
+        )}
+      </td>
+              <td>{new Date(c.created_at).toLocaleDateString()}</td>
+              <td>{new Date(c.updated_at).toLocaleString()}</td>
+              <td>
+                <a
+                  href="#"
+                  className="btn-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/project-details-product/${c.id}`);
+                  }}
                 >
-                  <option value="name">Sort • Name A-Z</option>
-                  <option value="joined">Sort • Newest Joined</option>
-                  <option value="updated">Sort • Recently Updated</option>
-                </select>
-              </div>
+                  View Details
+                </a>
+                <a
+                  href="#"
+                  className="btn-link btn-send"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    confirmSendToProduction(c.id);
+                  }}
+                  style={{
+                    pointerEvents: c.latest_project?.status === "Completed" ? "none" : "auto",
+                    opacity: c.latest_project?.status === "Completed" ? 0.5 : 1,
+                  }}
+                >
+                  Send to Manager
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </section>
+)}
 
-              {/* Customer Table */}
-              {visibleCustomers.length === 0 ? (
-                <p className="text-muted">No customers found.</p>
-              ) : (
-                <table className="customer-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Contact</th>
-                      <th>Address</th>
-                       <th>Project Name</th>
-      <th>Project Status</th>
-                      <th>Joined</th>
-                      <th>Last Update</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleCustomers.map((c) => (
-                      <tr key={c.id}>
-                        <td>{c.name}</td>
-                        <td>{c.email}</td>
-                        <td>{c.contact_number}</td>
-                        <td>{c.address || "N/A"}</td>
-                         <td>{c.latest_project?.product_name || "No Project"}</td>
-
-                   <td>
-  {c.latest_project?.status ? (
-    <span
-      style={{
-        display: "inline-block",
-        backgroundColor:
-          c.latest_project.status === "In Production"
-            ? "grey"
-            : c.latest_project.status === "In Design"
-            ? "yellow"
-            : "transparent",
-        color: "black",
-        height: "25px",
-        padding:"2px",
-        
-        borderRadius: "4px",
-        textAlign: "center",
-        fontWeight: "bold",
-        fontSize: "0.85rem",
-        userSelect: "none",
-      }}
-    >
-      {c.latest_project.status}
-    </span>
-  ) : (
-    "N/A"
-  )}
-</td>
-                       
-                        <td>{new Date(c.created_at).toLocaleDateString()}</td>
-                        <td>{new Date(c.updated_at).toLocaleString()}</td>
-                        <td>
-                          <a
-                            href="#"
-                            className="btn-link"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              navigate(`/project-details-product/${c.id}`);
-                            }}
-                            title="View Project Details"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="btn-icon"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              width="16"
-                              height="16"
-                              aria-hidden="true"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M8 16h8M8 12h8m-8-4h8M4 20h16a2 2 0 002-2v-6a2 2 0 00-2-2H4a2 2 0 00-2 2v6a2 2 0 002 2z"
-                              />
-                            </svg>
-                            Project Details
-                          </a>
-
-                          <a
-  href="#"
-  className="btn-link btn-send"
-  onClick={(e) => {
-    e.preventDefault();
-    confirmSendToProduction(c.id);
-  }}
-  title="Send to Manager"
-  style={{ pointerEvents: c.latest_project?.status === "Completed" ? "none" : "auto", opacity: c.latest_project?.status === "Completed" ? 0.5 : 1 }}
-  aria-disabled={c.latest_project?.status === "Completed"}
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="btn-icon"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-    width="16"
-    height="16"
-    aria-hidden="true"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M14.752 11.168l-3.197-2.132a1 1 0 00-1.555.83v4.27a1 1 0 001.555.83l3.197-2.132a1 1 0 000-1.666z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
-  </svg>
-  Send to Manager
-</a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </section>
-          )}
         </div>
       </main>
 
@@ -521,8 +623,49 @@ const csrftoken = getCookie('csrftoken');
       )}
 
 
+{/* Logout Confirmation Modal */}
+{showLogoutConfirm && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <h4>Confirm Logout</h4>
+      <p>Are you sure you want to logout?</p>
+      <div className="modal-buttons">
+        <button
+          className="btn btn-confirm"
+          onClick={handleLogout}
+          disabled={loggingOut}
+        >
+          {loggingOut ? "Logging out…" : "Yes, Logout"}
+        </button>
+        <button
+          className="btn btn-cancel"
+          onClick={handleLogoutCancel}
+          disabled={loggingOut}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Logout message (success or error) */}
+{logoutMsg && (
+  <div
+    className={`${logoutMsg.type}-message modal-overlay`}
+    onClick={() => setLogoutMsg(null)}
+  >
+    <div className="modal-box" style={{ cursor: "pointer" }}>
+      {logoutMsg.text}
+    </div>
+  </div>
+)}
+
+
+
       
     </div>
+    
 
 
 

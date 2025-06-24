@@ -271,9 +271,7 @@ function ProjectDetailsmanager() {
           <i className="bi bi-arrow-left-short" /> Back
         </button>
 
-        <h2 className="customer-name-header">
-          Customer – {customer?.name || "Customer"}
-        </h2>
+        <h2 className="customer-name-header">{`Product name  – ${size?.productName }`}</h2>
 
         <span className="drawings-count">
           {productionImagesCount}/4 production images
@@ -327,13 +325,7 @@ function ProjectDetailsmanager() {
 
           <section className="form-section">
             <h4>Material</h4>
-            <label htmlFor="materialName">Product name </label>
-            <input
-              id="materialName"
-              type="text"
-              value={productName}
-              onChange={(e) => handleChange("productName", e.target.value)}
-            />
+           
 
             <div className="two-col">
               <label htmlFor="bodyColor">Body Colour</label>
@@ -378,93 +370,114 @@ function ProjectDetailsmanager() {
 
       
 
-          <p className="min-note">* Minimum 2 production images required to save</p>
+         
         </div>
 
-        <aside className="pd-drawings">
-          <h4>Production Images</h4>
+   <aside className="container my-5">
+  {/* Production Images Section */}
+  <h4 className="mb-4 fw-semibold">Production Images</h4>
 
-          {loadingProductionImages ? (
-            <p className="text-muted">Loading…</p>
-          ) : productionImagesCount === 0 ? (
-            <p className="text-muted">No production images added yet.</p>
-          ) : (
-            <div className="draw-grid">
-              {productionImages.map((img) => (
-                <div key={img.id} className="draw-card">
-                  {img.image_url ? (
-                    <img
-                      src={img.image_url}
-                      alt={`Production Image ${img.image_num}`}
-                    />
-                  ) : (
-                    <i className="bi bi-file-earmark-text display-6 text-secondary" />
-                  )}
-
-                  <div className="draw-links">
-                    <a
-                      href={img.file}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-eye" />
-                      View Production Image {img.image_num}
-                    </a>
-                    <a
-                      href={img.file}
-                      download
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-download" />
-                      Download
-                    </a>
-                  </div>
-                </div>
-              ))}
+  {loadingProductionImages ? (
+    <p className="text-muted">Loading…</p>
+  ) : productionImagesCount === 0 ? (
+    <p className="text-muted">No production images added yet.</p>
+  ) : (
+    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+      {productionImages.map((img) => (
+        <div key={img.id} className="col">
+          <div className="card h-100 shadow-sm border-0 rounded-3 p-2 custom-hover">
+            {img.image_url ? (
+              <img
+                src={img.image_url}
+                alt={`Production Image ${img.image_num}`}
+                className="card-img-top rounded"
+                style={{ objectFit: "cover", height: "180px" }}
+              />
+            ) : (
+              <div className="d-flex justify-content-center align-items-center bg-light rounded" style={{ height: "180px" }}>
+                <i className="bi bi-file-earmark-text display-4 text-secondary" />
+              </div>
+            )}
+            <div className="card-body pt-3">
+              <h6 className="card-title fw-semibold mb-2">Production Image {img.image_num}</h6>
+              <div className="d-flex flex-column gap-2">
+                <a
+                  href={img.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline-primary btn-sm"
+                >
+                  <i className="bi bi-eye me-1" />
+                  View
+                </a>
+                <a
+                  href={img.file}
+                  download
+                  className="btn btn-outline-secondary btn-sm"
+                >
+                  <i className="bi bi-download me-1" />
+                  Download
+                </a>
+              </div>
             </div>
-          )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
 
-          <h4 className="mt-4">Drawings</h4>
+  {/* Drawings Section */}
+  <h4 className="mt-5 mb-4 fw-semibold">Drawings</h4>
 
-          {loadingDrawings ? (
-            <p className="text-muted">Loading…</p>
-          ) : drawingsCount === 0 ? (
-            <p className="text-muted">No drawings added yet.</p>
-          ) : (
-            <div className="draw-grid">
-              {drawings.map((d) => (
-                <div key={d.id} className="draw-card">
-                  {d.image_url ? (
-                    <img src={d.image_url} alt={`Drawing ${d.drawing_num}`} />
-                  ) : (
-                    <i className="bi bi-file-earmark-text display-6 text-secondary" />
-                  )}
-
-                  <div className="draw-links">
-                    <a
-                      href={d.file}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-eye" />
-                      View Drawing {d.drawing_num}
-                    </a>
-                    <a
-                      href={d.file}
-                      download
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-download" />
-                      Download
-                    </a>
-                  </div>
-                </div>
-              ))}
+  {loadingDrawings ? (
+    <p className="text-muted">Loading…</p>
+  ) : drawingsCount === 0 ? (
+    <p className="text-muted">No drawings added yet.</p>
+  ) : (
+    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+      {drawings.map((d) => (
+        <div key={d.id} className="col">
+          <div className="card h-100 shadow-sm border-0 rounded-3 p-2 custom-hover">
+            {d.image_url ? (
+              <img
+                src={d.image_url}
+                alt={`Drawing ${d.drawing_num}`}
+                className="card-img-top rounded"
+                style={{ objectFit: "cover", height: "140px" }}
+              />
+            ) : (
+              <div className="d-flex justify-content-center align-items-center bg-light rounded" style={{ height: "140px" }}>
+                <i className="bi bi-file-earmark-text display-4 text-secondary" />
+              </div>
+            )}
+            <div className="card-body pt-3">
+              <h6 className="card-title fw-semibold mb-2">Drawing {d.drawing_num}</h6>
+              <div className="d-flex flex-column gap-2">
+                <a
+                  href={d.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-outline-primary btn-sm"
+                >
+                  <i className="bi bi-eye me-1" />
+                  View
+                </a>
+                <a
+                  href={d.file}
+                  download
+                  className="btn btn-outline-secondary btn-sm"
+                >
+                  <i className="bi bi-download me-1" />
+                  Download
+                </a>
+              </div>
             </div>
-          )}
-        </aside>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</aside>
       </div>
     </div>
   );

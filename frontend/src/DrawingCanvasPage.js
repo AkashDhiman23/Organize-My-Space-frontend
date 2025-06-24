@@ -61,11 +61,19 @@ export default function DrawingCanvasPage() {
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [fontSize, setFontSize] = useState(18);
 
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
   const [popup, setPopup] = useState(null);
   const [textEdit, setTextEdit] = useState(null);
 
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
+  const [strokeType, setStrokeType] = useState("solid");
+  const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(0); 
+  const [saveMessage, setSaveMessage] = useState("");
+const [messageType, setMessageType] = useState("success"); // or "error"
+
 
   const pushUndo = useCallback(
     (snap) => {
@@ -140,6 +148,20 @@ export default function DrawingCanvasPage() {
     ctx.fill();
     ctx.restore();
   };
+  const renderLineWithArrows = (ctx, shape, strokeColor) => {
+  ctx.beginPath();
+  ctx.moveTo(shape.x1, shape.y1);
+  ctx.lineTo(shape.x2, shape.y2);
+  ctx.stroke();
+
+  const prevFillStyle = ctx.fillStyle;
+  ctx.fillStyle = strokeColor;
+
+  drawArrow(ctx, shape.x2, shape.y2, shape.x1, shape.y1);
+  drawArrow(ctx, shape.x1, shape.y1, shape.x2, shape.y2);
+
+  ctx.fillStyle = prevFillStyle;
+};
 
   const snapLine = (x1, y1, x2, y2, shiftHeld) => {
     if (!shiftHeld) return { x2, y2 };
@@ -191,31 +213,45 @@ export default function DrawingCanvasPage() {
         ctx.stroke();
         break;
 
-      case TOOL_TYPES.LINE:
+      case TOOL_TYPES.LINE: {
+  ctx.beginPath();
+  ctx.moveTo(shape.x1, shape.y1);
+  ctx.lineTo(shape.x2, shape.y2);
+  ctx.stroke();
+  break;
+}
+
       case TOOL_TYPES.MEASUREMENT: {
-        ctx.beginPath();
-        ctx.moveTo(shape.x1, shape.y1);
-        ctx.lineTo(shape.x2, shape.y2);
-        ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(shape.x1, shape.y1);
+  ctx.lineTo(shape.x2, shape.y2);
+  ctx.stroke();
 
-        drawArrow(ctx, shape.x2, shape.y2, shape.x1, shape.y1);
-        drawArrow(ctx, shape.x1, shape.y1, shape.x2, shape.y2);
+  // Save current fillStyle
+  const prevFillStyle = ctx.fillStyle;
+  ctx.fillStyle = "black"; // Arrow color black
 
-        const label = shape.measurementText || `${Math.hypot(shape.x2 - shape.x1, shape.y2 - shape.y1).toFixed(1)}px`;
-        const midX = (shape.x1 + shape.x2) / 2;
-        const midY = (shape.y1 + shape.y2) / 2;
-        const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
-        const offset = 15;
-        const offsetX = offset * Math.cos(angle + Math.PI / 2);
-        const offsetY = offset * Math.sin(angle + Math.PI / 2);
+  drawArrow(ctx, shape.x2, shape.y2, shape.x1, shape.y1);
+  drawArrow(ctx, shape.x1, shape.y1, shape.x2, shape.y2);
 
-        ctx.font = "13px Inter, sans-serif";
-        ctx.fillStyle = "red";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom";
-        ctx.fillText(label, midX + offsetX, midY + offsetY);
-        break;
-      }
+  // Restore fillStyle
+  ctx.fillStyle = prevFillStyle;
+
+  const label = shape.measurementText || `${Math.hypot(shape.x2 - shape.x1, shape.y2 - shape.y1).toFixed(1)}px`;
+  const midX = (shape.x1 + shape.x2) / 2;
+  const midY = (shape.y1 + shape.y2) / 2;
+  const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
+  const offset = 15;
+  const offsetX = offset * Math.cos(angle + Math.PI / 2);
+  const offsetY = offset * Math.sin(angle + Math.PI / 2);
+
+  ctx.font = "13px Inter, sans-serif";
+  ctx.fillStyle = "red";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  ctx.fillText(label, midX + offsetX, midY + offsetY);
+  break;
+}
 
       case TOOL_TYPES.PENCIL:
         ctx.beginPath();
@@ -319,7 +355,7 @@ export default function DrawingCanvasPage() {
         const next = [...prev];
         const sh = { ...next[selIdx] };
 
-        if ([TOOL_TYPES.LINE, TOOL_TYPES.MEASUREMENT].includes(sh.type)) {
+        if ([TOOL_TYPES.MEASUREMENT].includes(sh.type)) {
           sh.x1 += dx;
           sh.y1 += dy;
           sh.x2 += dx;
@@ -382,12 +418,19 @@ export default function DrawingCanvasPage() {
       setShapes([...shapes, newShape]);
 
       if (curr.type === TOOL_TYPES.MEASUREMENT) {
-        const idx = shapes.length;
-        const midX = (curr.x1 + curr.x2) / 2;
-        const midY = (curr.y1 + curr.y2) / 2;
-        setPopup({ x: midX, y: midY, shapeIdx: idx, text: "" });
-        setSelIdx(idx);
-      }
+  const idx = shapes.length;
+  const midX = (curr.x1 + curr.x2) / 2;
+  const midY = (curr.y1 + curr.y2) / 2;
+  setPopup({ x: midX, y: midY, shapeIdx: idx, text: "" });
+  setSelIdx(idx);
+}
+
+if (curr.type === TOOL_TYPES.LINE) {
+  const idx = shapes.length;
+  const midX = (curr.x1 + curr.x2) / 2;
+  const midY = (curr.y1 + curr.y2) / 2;
+  
+}
 
       if (curr.type === TOOL_TYPES.TEXT) {
         const idx = shapes.length;
@@ -467,39 +510,53 @@ export default function DrawingCanvasPage() {
 
   const onTextBlur = () => setTextEdit(null);
 
-  /* ---------- Export as PDF ---------- */
-   const saveDrawing = async () => {
+  /* ---------- Save drawing ---------- */
+   /* ---------- Export as PDF ---------- */
+    const saveDrawing = async () => {
     const canvas = canvasRef.current;
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "px",
       format: [canvas.width, canvas.height],
     });
+
     pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, canvas.width, canvas.height);
     const blob = pdf.output("blob");
     const form = new FormData();
     form.append("file", blob, `drawing${drawingNum}.pdf`);
     form.append("drawing_num", drawingNum);
+
     try {
       const res = await fetch(
         `http://localhost:8000/accounts/customers/${customerId}/project/drawing/`,
         {
           method: "POST",
           body: form,
-                    credentials: "include",
+          credentials: "include",
         }
       );
+
       if (res.ok) {
-        alert("Drawing saved successfully!");
+        
+        setSaveMessage("Drawing saved successfully!");
+        setMessageType("success");
       } else {
-        alert("Failed to save drawing.");
+        setSaveMessage(" Failed to save drawing.");
+        setMessageType("error");
       }
     } catch (error) {
-      alert("Error saving drawing: " + error.message);
+      setSaveMessage("⚠️ Error saving drawing: " + error.message);
+      setMessageType("error");
     }
+
+    // Optional: Clear message after 5 seconds
+    setTimeout(() => {
+      setSaveMessage("");
+    }, 5000);
   };
 
-  /* ---------- Render ---------- */
+
+  /* ---------- JSX rendering ---------- */
   return (
     <>
       {/* Top bar */}
@@ -511,12 +568,20 @@ export default function DrawingCanvasPage() {
           <h4>
             Drawing Canvas <br />
             <small className="text-primary">Customer: {customerId || "Guest"}</small>
+             {/* Message display */}
+      {saveMessage && (
+        <div className={`message-box ${messageType === "success" ? "msg-success" : "msg-error"}`}>
+          {saveMessage}
+        </div>
+           )}
           </h4>
         </div>
-        <div style={{ width: "10%" }} /> {/* empty for spacing */}
+        <div style={{ width: "10%" }} />
       </div>
 
+  
       <div className="flex-grow-1 d-flex">
+
         {/* Left sidebar (Tools) */}
         <aside className="sidebar-left" aria-label="Tool selection">
           <ul>
@@ -541,7 +606,7 @@ export default function DrawingCanvasPage() {
           </ul>
         </aside>
 
-        {/* Canvas container */}
+        {/* Canvas */}
         <main className="canvas-area">
           <canvas
             ref={canvasRef}
@@ -554,7 +619,6 @@ export default function DrawingCanvasPage() {
             style={{ cursor: tool === TOOL_TYPES.MOVE ? "move" : "crosshair" }}
             aria-label="Drawing canvas"
           />
-          {/* Popup input for measurement */}
           {popup && (
             <input
               className="measurement-popup"
@@ -566,7 +630,6 @@ export default function DrawingCanvasPage() {
               aria-label="Measurement input"
             />
           )}
-          {/* Text editing textarea */}
           {textEdit && (
             <textarea
               className="text-edit"
@@ -628,19 +691,71 @@ export default function DrawingCanvasPage() {
             onChange={(e) => setFontSize(Number(e.target.value))}
           />
 
-          {/* Buttons */}
-          <button className="btn btn-outline-primary mt-4" onClick={undo} disabled={!undoStack.length}>
-            <i className="bi bi-arrow-counterclockwise"></i> Undo
-          </button>
-          <button className="btn btn-outline-primary mt-2" onClick={redo} disabled={!redoStack.length}>
-            <i className="bi bi-arrow-clockwise"></i> Redo
-          </button>
-          <button className="btn btn-outline-danger mt-2" onClick={clearCanvas}>
-            <i className="bi bi-trash"></i> Clear
-          </button>
-          <button className="btn btn-outline-success mt-2" onClick={saveDrawing}>
-            <i className="bi bi-file-earmark-pdf"></i> Save Drawing
-          </button>
+          {/* Stroke Type */}
+          <label htmlFor="stroke-type" className="form-label mt-3">
+            Stroke Type
+          </label>
+          <select
+            id="stroke-type"
+            className="form-select"
+            value={strokeType}
+            onChange={(e) => setStrokeType(e.target.value)}
+          >
+            <option value="solid">Solid</option>
+            <option value="dashed">Dashed</option>
+          </select>
+
+          {/* Scale */}
+          <label htmlFor="scale" className="form-label mt-3">
+            Scale ({scale.toFixed(2)})
+          </label>
+          <input
+            id="scale"
+            type="range"
+            min="0.1"
+            max="3"
+            step="0.01"
+            value={scale}
+            onChange={(e) => setScale(Number(e.target.value))}
+          />
+
+          {/* Rotation */}
+          <label htmlFor="rotation" className="form-label mt-3">
+            Rotation ({rotation}°)
+          </label>
+          <input
+            id="rotation"
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+            value={rotation}
+            onChange={(e) => setRotation(Number(e.target.value))}
+          />
+
+          <div className="mt-4">
+            <button className="btn btn-outline-secondary me-2" onClick={undo} disabled={undoStack.length === 0}>
+              Undo
+            </button>
+            <button className="btn btn-outline-secondary me-2" onClick={redo} disabled={redoStack.length === 0}>
+              Redo
+            </button>
+            <button className="btn btn-outline-danger me-2" onClick={clearCanvas}>
+              Clear
+            </button>
+              <button onClick={saveDrawing} className="btn btn-primary">
+        Save Drawing as PDF
+      </button>
+
+      {/* Message display */}
+      {saveMessage && (
+        <div className={`message-box ${messageType === "success" ? "msg-success" : "msg-error"}`}>
+          {saveMessage}
+        </div>
+           )}
+          </div>
+          {feedbackMessage && <div className="mt-2 text-success">{feedbackMessage}
+            </div>}
         </aside>
       </div>
     </>

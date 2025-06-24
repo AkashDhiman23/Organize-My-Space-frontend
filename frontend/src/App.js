@@ -22,12 +22,16 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
          <Route path="/my-projects" element={<DesignerDashboard />} />
-        
+
+
+       
         <Route path="/company-profile" element={<DesignerDashboard />} />
+        <Route path="/company-profil" element={<ProductionDashboard />} />
         <Route path="/verify-otp/:adminId" element={<VerifyOtp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/designer" element={<DesignerDashboard />} />
         <Route path="/clients" element={<DesignerDashboard />} />
+        <Route path="/client" element={<ProductionDashboard />} />
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/draw/:customerId" element={<DrawingCanvasPage />} />
         <Route path="/project-details/:customerId" element={<ProjectDetailsPage />} />

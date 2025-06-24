@@ -116,6 +116,7 @@ export default function Signup() {
             <input
               type="text"
               name="fullName"
+              className="auth-input"
               placeholder="Full Name"
               value={form.fullName}
               onChange={handleChange}
@@ -124,6 +125,7 @@ export default function Signup() {
             <input
               type="email"
               name="email"
+              className="auth-input"
               placeholder="you@example.com"
               value={form.email}
               onChange={handleChange}
@@ -133,6 +135,7 @@ export default function Signup() {
             <input
               type="password"
               name="password"
+              className="auth-input"
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
@@ -141,6 +144,7 @@ export default function Signup() {
             <input
               type="password"
               name="confirmPassword"
+              className="auth-input"
               placeholder="Confirm Password"
               value={form.confirmPassword}
               onChange={handleChange}
@@ -150,6 +154,7 @@ export default function Signup() {
             <input
               type="text"
               name="companyName"
+              className="auth-input"
               placeholder="Company Name"
               value={form.companyName}
               onChange={handleChange}
@@ -158,6 +163,7 @@ export default function Signup() {
             <input
               type="text"
               name="address"
+              className="auth-input"
               placeholder="Company Address"
               value={form.address}
               onChange={handleChange}
@@ -166,6 +172,7 @@ export default function Signup() {
             <input
               type="text"
               name="gstDetails"
+              className="auth-input"
               placeholder="GST Details"
               value={form.gstDetails}
               onChange={handleChange}
@@ -176,6 +183,7 @@ export default function Signup() {
               <input
                 type="text"
                 name="otp"
+                className="auth-input"
                 placeholder="Enter OTP"
                 value={form.otp}
                 onChange={handleChange}

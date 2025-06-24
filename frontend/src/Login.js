@@ -117,10 +117,11 @@ function Login() {
           <h2>LOGIN</h2>
           <form onSubmit={handleSubmit}>
             <div className="input-group">
-              <i className="fas fa-envelope" />
+              
               <input
                 type="email"
                 name="email"
+                className="auth-input"
                 placeholder="Email"
                 onChange={handleChange}
                 value={formData.email}
@@ -128,10 +129,11 @@ function Login() {
               />
             </div>
             <div className="input-group">
-              <i className="fas fa-lock" />
+              
               <input
                 type="password"
                 name="password"
+                className="auth-input"
                 placeholder="Password"
                 onChange={handleChange}
                 value={formData.password}

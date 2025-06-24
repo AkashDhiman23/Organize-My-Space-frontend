@@ -58,7 +58,7 @@ const HomePage = () => {
           </a>
         </div>
         <div style={styles.navLinksContainer}>
-
+          <a href="#about" style={styles.navLink}>Home</a>
          <a
   href="#get-in-touch"
   style={styles.navLink}

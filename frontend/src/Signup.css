@@ -62,13 +62,10 @@
   margin-bottom: 1.5rem;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  /* keep your existing styles */
+input.auth-input[type="text"],
+input.auth-input[type="email"],
+input.auth-input[type="password"] {
+
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 1.25rem;
@@ -79,14 +76,8 @@ input[type="password"] {
   transition: background-color 0.3s ease;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  background-color: #3a3a5a;
-}
+
+
 
 input[disabled] {
   cursor: not-allowed;
