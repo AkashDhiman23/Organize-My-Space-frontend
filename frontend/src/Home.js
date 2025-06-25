@@ -58,7 +58,7 @@ const HomePage = () => {
           </a>
         </div>
         <div style={styles.navLinksContainer}>
-          <a href="#about" style={styles.navLink}>Home</a>
+          <a href="/" style={styles.navLink}>Home</a>
          <a
   href="#get-in-touch"
   style={styles.navLink}
@@ -73,42 +73,38 @@ const HomePage = () => {
         </div>
       </nav>
 
-      {/* Slideshow Banner Section */}
-      <div style={styles.bannerSection}>
-        <Carousel
-          autoPlay
-          infiniteLoop
-          showThumbs={false}
-          showStatus={false}
-          interval={4000}
-        >
-          {[
-            {
-              src: "/images/banner.jpg",
-              title: "Effortless Task Management",
-              subtitle: "Stay on top of your to-do list with ease.",
-            },
-            // {
-            //   src: "/images/banner2.png",
-            //   title: "Role-Based Access Control",
-            //   subtitle: "Assign roles and control access intelligently.",
-            // },
-            {
-              src: "/images/banner3.png",
-              title: "Organize Your Digital Space",
-              subtitle: "Smart solutions for smart people.",
-            },
-          ].map((item, index) => (
-            <div key={index} style={styles.slideContainer}>
-              <img src={item.src} alt={`Slide ${index + 1}`} style={styles.slideImage} />
-              <div style={styles.slideTextOverlay}>
-                <h2 style={styles.slideTitle}>{item.title}</h2>
-                <p style={styles.slideSubtitle}>{item.subtitle}</p>
-              </div>
-            </div>
-          ))}
-        </Carousel>
+     {/* Slideshow Banner Section */}
+<div style={styles.bannerSection}>
+  <Carousel
+    autoPlay
+    infiniteLoop
+    showThumbs={false}
+    showStatus={false}
+    interval={4000}
+    showArrows={false} 
+  >
+    {[
+      {
+        src: "/images/banner.jpg",
+        title: "Effortless Task Management",
+        subtitle: "Stay on top of your to-do list with ease.",
+      },
+      {
+        src: "/images/banner3.png",
+        title: "Organize Your Digital Space",
+        subtitle: "Smart solutions for smart people.",
+      },
+    ].map((item, index) => (
+      <div key={index} style={styles.slideContainer}>
+        <img src={item.src} alt={`Slide ${index + 1}`} style={styles.slideImage} />
+        <div style={styles.slideTextOverlay}>
+          <h2 style={styles.slideTitle}>{item.title}</h2>
+          <p style={styles.slideSubtitle}>{item.subtitle}</p>
+        </div>
       </div>
+    ))}
+  </Carousel>
+</div>
 
       {/* Title Section */}
       <div style={styles.titleSection}>
@@ -264,14 +260,18 @@ const HomePage = () => {
 
 // Styles
 const styles = {
+
+
+
   container: {
-    width: "100vw",
     minHeight: "100vh",
+    maxHeight: "none",
     backgroundColor: "#121212",
     color: "#f5f5f5",
     fontFamily: "Arial, sans-serif",
     textAlign: "center",
-    overflowX: "hidden",
+      overflowX: "auto",
+  overflowY: "auto", 
   },
  navbar: {
   display: "flex",
@@ -307,6 +307,7 @@ navLink: {
   slideContainer: {
     position: "relative",
     height: "800px",
+      overflow: "hidden", 
   },
   slideImage: {
     width: "100%",
