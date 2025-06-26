@@ -326,7 +326,7 @@ async function handleLogout() {
       alert("Please enter a note before deleting.");
       return;
     }
-    if (!window.confirm(`Are you sure you want to delete this customer?\nNote: ${note}`)) {
+    if (!window.confirm(`Are you sure you want to delete this customer?Note: ${note}`)) {
       return;
     }
     try {
