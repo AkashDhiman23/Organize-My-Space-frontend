@@ -8,7 +8,7 @@ const getCookie = (name) => {
   return v.length === 2 ? v.pop().split(";").shift() : "";
 };
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
 
 export default function Signup() {
   const [form, setForm] = useState({

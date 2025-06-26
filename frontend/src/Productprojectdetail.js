@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./Projectdetails.css";
 
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
 
 function ProductionProjectDetail() {
   const { customerId } = useParams();
@@ -44,14 +44,14 @@ function ProductionProjectDetail() {
       try {
         // Fetch customer info
         const { data: cust } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/`,
           { withCredentials: true }
         );
         setCustomer(cust);
 
         // Fetch project info
         const { data: proj } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/project/`,
           { withCredentials: true }
         );
 
@@ -79,11 +79,11 @@ function ProductionProjectDetail() {
       try {
         setLoadingProductionImages(true);
         const { data } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/production-images/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/project/production-images/`,
           { withCredentials: true }
         );
 
-        const BASE = "http://16.176.159.91:8000";
+        const BASE = "${API_BASE_URL}";
 
         const normalizedImages = data.map((img) => {
           const file = img.file.startsWith("http")
@@ -117,11 +117,11 @@ function ProductionProjectDetail() {
       try {
         setLoadingDrawings(true);
         const { data } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/drawings/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/project/drawings/`,
           { withCredentials: true }
         );
 
-        const BASE = "http://16.176.159.91:8000";
+        const BASE = "${API_BASE_URL}";
 
         const normalizedDrawings = data.map((d) => {
           const file = d.file.startsWith("http")
@@ -184,7 +184,7 @@ function ProductionProjectDetail() {
 
         // Adjust the endpoint and payload to your API specification
         await axios.post(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/production-images/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/project/production-images/`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -195,10 +195,10 @@ function ProductionProjectDetail() {
 
       // After upload, reload production images
       const { data } = await axios.get(
-        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/production-images/`,
+        `${API_BASE_URL}/accounts/customers/${customerId}/project/production-images/`,
         { withCredentials: true }
       );
-      const BASE = "http://16.176.159.91:8000";
+      const BASE = "${API_BASE_URL}";
       const normalizedImages = data.map((img) => {
         const file = img.file.startsWith("http")
           ? img.file
@@ -244,7 +244,7 @@ function ProductionProjectDetail() {
 
     try {
       await axios.post(
-        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
+        `${API_BASE_URL}/accounts/customers/${customerId}/project/`,
         body,
         { withCredentials: true }
       );

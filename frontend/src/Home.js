@@ -5,7 +5,7 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
 const HomePage = () => {
 
   const [form, setForm] = useState({

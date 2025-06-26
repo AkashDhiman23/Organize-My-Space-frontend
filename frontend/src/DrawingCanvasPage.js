@@ -5,7 +5,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "./DrawingCanvasPage.css";
 
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
 
 
 /* ---------- Tool types and icons ---------- */

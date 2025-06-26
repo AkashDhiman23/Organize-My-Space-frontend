@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import "./Projectdetails.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
 
 function ProjectDetail() {
   const { customerId } = useParams();
@@ -35,13 +35,13 @@ function ProjectDetail() {
     const fetchData = async () => {
       try {
         const { data: cust } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/`,
           { withCredentials: true }
         );
         setCustomer(cust);
 
         const { data: proj } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/project/`,
           { withCredentials: true }
         );
 
@@ -69,11 +69,11 @@ function ProjectDetail() {
       try {
         setLoadingDrawings(true);
         const { data } = await axios.get(
-          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/drawings/`,
+          `${API_BASE_URL}/accounts/customers/${customerId}/project/drawings/`,
           { withCredentials: true }
         );
 
-        const BASE = "http://16.176.159.91:8000";
+        const BASE = "${API_BASE_URL}";
 
         const normalizedDrawings = data.map((d) => {
           const file = d.file.startsWith("http")
@@ -146,7 +146,7 @@ function ProjectDetail() {
 
     try {
       await axios.post(
-        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
+        `${API_BASE_URL}/accounts/customers/${customerId}/project/`,
         body,
         { withCredentials: true }
       );
