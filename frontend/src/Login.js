@@ -15,7 +15,7 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://localhost:8000/accounts/csrf/", {
+    axios.get("http://16.176.159.91:8000/accounts/csrf/", {
       withCredentials: true,
     });
   }, []);
