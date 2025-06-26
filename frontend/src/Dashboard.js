@@ -224,7 +224,7 @@ const completedProjects = customers.filter(
 
   try {
     // Ensure CSRF token is set
-    await fetch("http://16.176.159.91:8000/accounts/get-csrf/", {
+    await fetch("http://16.176.159.91:8000/accounts/csrf-token/", {
       credentials: 'include',
     });
 
