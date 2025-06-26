@@ -17,7 +17,8 @@ import "./Dashboard.css";
 
 const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f"];
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
+const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
+
 
 
 function getCookie(name) {

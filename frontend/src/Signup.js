@@ -8,7 +8,8 @@ const getCookie = (name) => {
   return v.length === 2 ? v.pop().split(";").shift() : "";
 };
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
+const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
+
 
 export default function Signup() {
   const [form, setForm] = useState({

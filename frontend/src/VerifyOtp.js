@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './VerifyOtp.css';
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
+
+const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
+
 
 function VerifyOtp() {
   const { admin_id } = useParams(); // from the URL: /verify-otp/:admin_id

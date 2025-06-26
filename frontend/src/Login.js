@@ -4,7 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ;
+const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
+
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
