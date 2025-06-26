@@ -49,7 +49,7 @@ function Login() {
       const csrftoken = getCookie("csrftoken");
 
       const res = await axios.post(
-        "http://localhost:8000/accounts/login/",
+        "http://16.176.159.91:8000/accounts/login/",
         {
           email: formData.email,
           password: formData.password,
