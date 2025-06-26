@@ -18,6 +18,20 @@ import "./Dashboard.css";
 const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f"];
 
 
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -204,36 +218,44 @@ const completedProjects = customers.filter(
     return match ? decodeURIComponent(match[2]) : null;
   };
 
-  // Add member form submit handler
   const handleAddMember = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch('http://16.176.159.91:8000/accounts/create-member/', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: JSON.stringify({ full_name: fullName, email, role, password }),
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to create member');
-      }
-      setMessage('Member added successfully!');
-      setFullName('');
-      setEmail('');
-      setPassword('');
-      setRole('Designer');
-      fetchAll();
-    } catch (err) {
-      setMessage('Error: ' + err.message);
-    } finally {
-      setLoading(false);
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    // Ensure CSRF token is set
+    await fetch("http://16.176.159.91:8000/accounts/get-csrf/", {
+      credentials: 'include',
+    });
+
+    const res = await fetch('http://16.176.159.91:8000/accounts/create-member/', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ full_name: fullName, email, role, password }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || 'Failed to create member');
     }
-  };
+
+    setMessage('Member added successfully!');
+    setFullName('');
+    setEmail('');
+    setPassword('');
+    setRole('Designer');
+    fetchAll();
+  } catch (err) {
+    setMessage('Error: ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   
 function handleLogoutConfirm() {
