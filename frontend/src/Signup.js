@@ -2,14 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Signup.css";
 
-/* helper: read cookie for CSRF */
-const getCookie = (name) => {
-  const v = `; ${document.cookie}`.split(`; ${name}=`);
-  return v.length === 2 ? v.pop().split(";").shift() : "";
-};
-
 const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
-
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -22,13 +15,12 @@ export default function Signup() {
     gstDetails: "",
     otp: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
-
-  
 
   const navigate = useNavigate();
 
@@ -37,7 +29,7 @@ export default function Signup() {
 
   const sendOtp = async () => {
     if (!form.email) {
-      setError("Enter e‑mail first");
+      setError("Enter email first");
       return;
     }
     setError(null);
@@ -47,18 +39,20 @@ export default function Signup() {
     try {
       const res = await fetch(`${API_BASE_URL}/accounts/send-otp/`, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken"),
         },
         body: JSON.stringify({ email: form.email }),
       });
-      if (!res.ok) throw new Error(await res.text());
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data?.detail || "Could not send OTP");
+
       setOtpSent(true);
       setInfo("OTP sent! Check your inbox.");
     } catch (err) {
-      setError(err.message || "Could not send OTP");
+      setError(err.message);
     } finally {
       setOtpLoading(false);
     }
@@ -73,6 +67,7 @@ export default function Signup() {
       setError("Passwords do not match");
       return;
     }
+
     if (!form.otp) {
       setError("Please enter the OTP");
       return;
@@ -82,10 +77,8 @@ export default function Signup() {
     try {
       const res = await fetch(`${API_BASE_URL}/accounts/signup/`, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken"),
         },
         body: JSON.stringify({
           full_name: form.fullName,
@@ -97,8 +90,14 @@ export default function Signup() {
           otp: form.otp,
         }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Signup failed");
+      if (!res.ok) throw new Error(data?.detail || "Signup failed");
+
+      // Optional: Store JWT tokens (access, refresh) if backend returns them
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+
       navigate("/login");
     } catch (err) {
       setError(err.message);
@@ -136,7 +135,6 @@ export default function Signup() {
               onChange={handleChange}
               required
             />
-
             <input
               type="password"
               name="password"
@@ -155,7 +153,6 @@ export default function Signup() {
               onChange={handleChange}
               required
             />
-
             <input
               type="text"
               name="companyName"
