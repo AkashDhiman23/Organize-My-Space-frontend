@@ -42,7 +42,7 @@ function CompanyDetails() {
     const csrftoken = getCookie('csrftoken');
 
     try {
-      const res = await fetch('http://localhost:8000/accounts/create-company/', {
+      const res = await fetch('http://16.176.159.91:8000/accounts/create-company/', {
         method: 'POST',
         credentials: 'include',  // Send cookies (sessionid)
         headers: {

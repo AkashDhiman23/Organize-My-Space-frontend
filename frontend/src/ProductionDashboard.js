@@ -88,8 +88,8 @@ useEffect(() => {
   (async () => {
     try {
       const [custRes, memberRes] = await Promise.all([
-        axios.get("http://localhost:8000/accounts/all-customers/", { withCredentials: true }),
-        axios.get("http://localhost:8000/accounts/member-profile/", { withCredentials: true }),
+        axios.get("http://16.176.159.91:8000/accounts/all-customers/", { withCredentials: true }),
+        axios.get("http://16.176.159.91:8000/accounts/member-profile/", { withCredentials: true }),
       ]);
 
       setCustomers(custRes.data);
@@ -105,9 +105,9 @@ useEffect(() => {
         if (companyData.company_logo.startsWith("http")) {
           logoUrl = companyData.company_logo;
         } else if (companyData.company_logo.startsWith("/")) {
-          logoUrl = `http://localhost:8000${companyData.company_logo}`;
+          logoUrl = `http://16.176.159.91:8000${companyData.company_logo}`;
         } else {
-          logoUrl = `http://localhost:8000/media/${companyData.company_logo}`;
+          logoUrl = `http://16.176.159.91:8000/media/${companyData.company_logo}`;
         }
 
         setExistingLogoUrl(logoUrl);
@@ -168,7 +168,7 @@ function handleLogoutCancel() {
     setActionLoading(true);
     try {
       await axios.post(
-        `http://localhost:8000/accounts/projects/customer/${selectedCustomerId}/send-to-manager/`,
+        `http://16.176.159.91:8000/accounts/projects/customer/${selectedCustomerId}/send-to-manager/`,
         {},
         { headers: { "X-CSRFToken": csrftoken }, withCredentials: true }
       );
@@ -217,7 +217,7 @@ async function handleLogout() {
   setLogoutMsg(null);
 
   try {
-    const response = await fetch("http://localhost:8000/accounts/logout/", {
+    const response = await fetch("http://16.176.159.91:8000/accounts/logout/", {
       method: "POST",
       credentials: "include",
     });

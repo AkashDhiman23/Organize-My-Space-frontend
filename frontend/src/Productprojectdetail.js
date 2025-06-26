@@ -41,14 +41,14 @@ function ProductionProjectDetail() {
       try {
         // Fetch customer info
         const { data: cust } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/`,
           { withCredentials: true }
         );
         setCustomer(cust);
 
         // Fetch project info
         const { data: proj } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/project/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
           { withCredentials: true }
         );
 
@@ -76,11 +76,11 @@ function ProductionProjectDetail() {
       try {
         setLoadingProductionImages(true);
         const { data } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/project/production-images/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/production-images/`,
           { withCredentials: true }
         );
 
-        const BASE = "http://localhost:8000";
+        const BASE = "http://16.176.159.91:8000";
 
         const normalizedImages = data.map((img) => {
           const file = img.file.startsWith("http")
@@ -114,11 +114,11 @@ function ProductionProjectDetail() {
       try {
         setLoadingDrawings(true);
         const { data } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/project/drawings/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/drawings/`,
           { withCredentials: true }
         );
 
-        const BASE = "http://localhost:8000";
+        const BASE = "http://16.176.159.91:8000";
 
         const normalizedDrawings = data.map((d) => {
           const file = d.file.startsWith("http")
@@ -181,7 +181,7 @@ function ProductionProjectDetail() {
 
         // Adjust the endpoint and payload to your API specification
         await axios.post(
-          `http://localhost:8000/accounts/customers/${customerId}/project/production-images/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/production-images/`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -192,10 +192,10 @@ function ProductionProjectDetail() {
 
       // After upload, reload production images
       const { data } = await axios.get(
-        `http://localhost:8000/accounts/customers/${customerId}/project/production-images/`,
+        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/production-images/`,
         { withCredentials: true }
       );
-      const BASE = "http://localhost:8000";
+      const BASE = "http://16.176.159.91:8000";
       const normalizedImages = data.map((img) => {
         const file = img.file.startsWith("http")
           ? img.file
@@ -241,7 +241,7 @@ function ProductionProjectDetail() {
 
     try {
       await axios.post(
-        `http://localhost:8000/accounts/customers/${customerId}/project/`,
+        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
         body,
         { withCredentials: true }
       );

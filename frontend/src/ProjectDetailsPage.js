@@ -33,13 +33,13 @@ function ProjectDetail() {
     const fetchData = async () => {
       try {
         const { data: cust } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/`,
           { withCredentials: true }
         );
         setCustomer(cust);
 
         const { data: proj } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/project/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
           { withCredentials: true }
         );
 
@@ -67,11 +67,11 @@ function ProjectDetail() {
       try {
         setLoadingDrawings(true);
         const { data } = await axios.get(
-          `http://localhost:8000/accounts/customers/${customerId}/project/drawings/`,
+          `http://16.176.159.91:8000/accounts/customers/${customerId}/project/drawings/`,
           { withCredentials: true }
         );
 
-        const BASE = "http://localhost:8000";
+        const BASE = "http://16.176.159.91:8000";
 
         const normalizedDrawings = data.map((d) => {
           const file = d.file.startsWith("http")
@@ -144,7 +144,7 @@ function ProjectDetail() {
 
     try {
       await axios.post(
-        `http://localhost:8000/accounts/customers/${customerId}/project/`,
+        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/`,
         body,
         { withCredentials: true }
       );

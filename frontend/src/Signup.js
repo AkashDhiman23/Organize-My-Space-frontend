@@ -40,7 +40,7 @@ export default function Signup() {
     setOtpLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/accounts/send-otp/", {
+      const res = await fetch("http://16.176.159.91:8000/accounts/send-otp/", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -75,7 +75,7 @@ export default function Signup() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/accounts/signup/", {
+      const res = await fetch("http://16.176.159.91:8000/accounts/signup/", {
         method: "POST",
         credentials: "include",
         headers: {

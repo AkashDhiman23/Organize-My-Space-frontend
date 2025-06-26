@@ -99,10 +99,10 @@ const completedProjects = customers.filter(
   const fetchAll = useCallback(async () => {
   try {
     const [mRes, cRes, pRes, sRes] = await Promise.all([
-      fetch("http://localhost:8000/accounts/members/", { credentials: "include" }),
-      fetch("http://localhost:8000/accounts/all_customers_admin/", { credentials: "include" }),
-      fetch("http://localhost:8000/accounts/projects-list/", { credentials: "include" }),
-      fetch("http://localhost:8000/accounts/admin_settings/", { credentials: "include" }),
+      fetch("http://16.176.159.91:8000/accounts/members/", { credentials: "include" }),
+      fetch("http://16.176.159.91:8000/accounts/all_customers_admin/", { credentials: "include" }),
+      fetch("http://16.176.159.91:8000/accounts/projects-list/", { credentials: "include" }),
+      fetch("http://16.176.159.91:8000/accounts/admin_settings/", { credentials: "include" }),
     ]);
 
     if (mRes.ok) {
@@ -129,7 +129,7 @@ const completedProjects = customers.filter(
       if (settingsData.company_logo) {
         const fullUrl = settingsData.company_logo.startsWith("http")
           ? settingsData.company_logo
-          : `http://localhost:8000${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
+          : `http://16.176.159.91:8000${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
         setCompanyLogoUrl(fullUrl);
       }
     }
@@ -209,7 +209,7 @@ const completedProjects = customers.filter(
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/accounts/create-member/', {
+      const res = await fetch('http://16.176.159.91:8000/accounts/create-member/', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -251,7 +251,7 @@ async function handleLogout() {
   setLogoutMsg(null);
 
   try {
-    const response = await fetch("http://localhost:8000/accounts/logout/", {
+    const response = await fetch("http://16.176.159.91:8000/accounts/logout/", {
       method: "POST",
       credentials: "include",
     });
@@ -285,7 +285,7 @@ const teamMembers = members;   // alias so ESLint sees it
 useEffect(() => {
   async function fetchSettings() {
     try {
-      const res = await fetch('http://localhost:8000/accounts/admin_settings/', {
+      const res = await fetch('http://16.176.159.91:8000/accounts/admin_settings/', {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch settings');
@@ -303,7 +303,7 @@ useEffect(() => {
         // For example, if relative path: 'uploads/logo.png'
         const fullLogoUrl = data.company_logo.startsWith('http')
           ? data.company_logo
-          : `http://localhost:8000/media/company_logos${data.company_logo}`;
+          : `http://16.176.159.91:8000/media/company_logos${data.company_logo}`;
         setExistingLogoUrl(fullLogoUrl);
       } else {
         setExistingLogoUrl(null);
@@ -340,7 +340,7 @@ const handleLogoChange = (e) => {
       formData.append('gst_details', gstNumber);
       if (companyLogo) formData.append('company_logo', companyLogo);
 
-      const res = await fetch('http://localhost:8000/accounts/admin_settings/', {
+      const res = await fetch('http://16.176.159.91:8000/accounts/admin_settings/', {
         method: 'PUT',
         credentials: 'include',
         headers: {

@@ -528,7 +528,7 @@ if (curr.type === TOOL_TYPES.LINE) {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/accounts/customers/${customerId}/project/drawing/`,
+        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/drawing/`,
         {
           method: "POST",
           body: form,
