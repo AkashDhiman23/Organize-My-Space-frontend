@@ -5,6 +5,8 @@ import "./Projectdetails.css";
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 function ManagerDashboard() {
   const navigate = useNavigate();
 
@@ -88,7 +90,7 @@ const newCustomersCount = customersOnDate.length;
   // Fetch company details
   const fetchCompanyDetails = async () => {
     try {
-      const res = await axios.get("http://16.176.159.91:8000/accounts/company-details/", {
+      const res = await axios.get(`${API_BASE_URL}/accounts/company-details/`, {
         withCredentials: true,
       });
       setCompanyDetails(res.data);
@@ -101,7 +103,7 @@ const newCustomersCount = customersOnDate.length;
   // Fetch customers
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get("http://16.176.159.91:8000/accounts/customers/", {
+      const res = await axios.get(`${API_BASE_URL}/accounts/customers/`, {
         withCredentials: true,
       });
       setCustomers(res.data);
@@ -114,7 +116,7 @@ const newCustomersCount = customersOnDate.length;
   const fetchTeamMembers = async () => {
     try {
       const { data } = await axios.get(
-        "http://16.176.159.91:8000/accounts/team-members/",
+        `${API_BASE_URL}/accounts/team-members/`,
         { withCredentials: true }
       );
       setTeamMembers(data);           // array of { id, full_name, email, role }
@@ -127,7 +129,7 @@ const newCustomersCount = customersOnDate.length;
   // Fetch projects (without overwriting teamMembers)
   const fetchProjects = async () => {
     try {
-      const res = await axios.get("http://16.176.159.91:8000/accounts/projects-list/", {
+      const res = await axios.get(`${API_BASE_URL}/accounts/projects-list/`, {
         withCredentials: true,
       });
       setProductions(res.data.productions); 
@@ -158,7 +160,7 @@ const completedProjects  = projects.filter(
   const fetchProfileData = async () => {
   try {
     const res = await axios.get(
-      "http://16.176.159.91:8000/accounts/member-profile/",
+      `${API_BASE_URL}/accounts/member-profile/`,
       { withCredentials: true }
     );
 
@@ -180,9 +182,9 @@ const completedProjects  = projects.filter(
       if (company.company_logo.startsWith("http")) {
         logoUrl = company.company_logo;
       } else if (company.company_logo.startsWith("/")) {
-        logoUrl = `http://16.176.159.91:8000${company.company_logo}`;
+        logoUrl = `${API_BASE_URL}${company.company_logo}`;
       } else {
-        logoUrl = `http://16.176.159.91:8000/media/${company.company_logo}`;
+        logoUrl = `${API_BASE_URL}/media/${company.company_logo}`;
       }
 
       setExistingLogoUrl(logoUrl);
@@ -233,7 +235,7 @@ async function handleLogout() {
   setLogoutMsg(null);
 
   try {
-    const response = await fetch("http://16.176.159.91:8000/accounts/logout/", {
+    const response = await fetch(`${API_BASE_URL}/accounts/logout/`, {
       method: "POST",
       credentials: "include",
     });
@@ -290,7 +292,7 @@ async function handleLogout() {
     };
 
     try {
-      await axios.post("http://16.176.159.91:8000/accounts/add-customer-project/", payload, {
+      await axios.post(`${API_BASE_URL}/accounts/add-customer-project/`, payload, {
         withCredentials: true,
       });
 
@@ -331,7 +333,7 @@ async function handleLogout() {
     }
     try {
       setIsDeleting((prev) => ({ ...prev, [id]: true }));
-      await axios.delete(`http://16.176.159.91:8000/accounts/customers/${id}/`, {
+      await axios.delete(`${API_BASE_URL}/accounts/customers/${id}/`, {
         data: { note },
         withCredentials: true,
       });
@@ -358,7 +360,7 @@ async function handleLogout() {
     else if (statusText === "Completed") progress_percentage = 100;
     try {
       await axios.patch(
-        `http://16.176.159.91:8000/accounts/customers/${id}/`,
+        `${API_BASE_URL}/accounts/customers/${id}/`,
         { progress_percentage },
         { withCredentials: true }
       );
@@ -373,7 +375,7 @@ const [successMsg, setSuccessMsg] = useState("");
 const assignDesigner = async (projectId, designerId) => {
   try {
     await axios.patch(
-      `http://16.176.159.91:8000/accounts/projects-assign/${projectId}/`,
+      `${API_BASE_URL}/accounts/projects-assign/${projectId}/`,
       { assigned_designer: designerId },
       { withCredentials: true }
     );
@@ -387,7 +389,7 @@ const assignDesigner = async (projectId, designerId) => {
 const assignProduction = async (projectId, productionId) => {
   try {
     await axios.patch(
-      `http://16.176.159.91:8000/accounts/projects-assign-production/${projectId}/`,
+      `${API_BASE_URL}/accounts/projects-assign-production/${projectId}/`,
       { assigned_production: productionId },
       { withCredentials: true }
     );

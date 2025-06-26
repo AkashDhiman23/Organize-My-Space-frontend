@@ -4,6 +4,10 @@ import { jsPDF } from "jspdf";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./DrawingCanvasPage.css";
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
+
 /* ---------- Tool types and icons ---------- */
 const TOOL_TYPES = {
   RECTANGLE: "rectangle",
@@ -528,7 +532,7 @@ if (curr.type === TOOL_TYPES.LINE) {
 
     try {
       const res = await fetch(
-        `http://16.176.159.91:8000/accounts/customers/${customerId}/project/drawing/`,
+        `${API_BASE_URL}/accounts/customers/${customerId}/project/drawing/`,
         {
           method: "POST",
           body: form,

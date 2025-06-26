@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 const HomePage = () => {
 
   const [form, setForm] = useState({
@@ -27,7 +29,7 @@ const HomePage = () => {
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:8000/accounts/enquiries/", {
+      const res = await fetch(`${API_BASE_URL}/accounts/enquiries/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

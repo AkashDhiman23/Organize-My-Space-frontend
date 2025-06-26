@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./designerdashboard.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
 function DesignerDashboard() {
   const [companyDetails, setCompanyDetails] = useState({
     company_logo:"",
@@ -90,8 +92,8 @@ useEffect(() => {
   (async () => {
     try {
       const [custRes, memberRes] = await Promise.all([
-        axios.get("http://16.176.159.91:8000/accounts/all-customers/", { withCredentials: true }),
-        axios.get("http://16.176.159.91:8000/accounts/member-profile/", { withCredentials: true }),
+        axios.get(`${API_BASE_URL}/accounts/all-customers/`, { withCredentials: true }),
+        axios.get(`${API_BASE_URL}/accounts/member-profile/`, { withCredentials: true }),
       ]);
 
       setCustomers(custRes.data);
@@ -107,9 +109,9 @@ useEffect(() => {
         if (companyData.company_logo.startsWith("http")) {
           logoUrl = companyData.company_logo;
         } else if (companyData.company_logo.startsWith("/")) {
-          logoUrl = `http://16.176.159.91:8000${companyData.company_logo}`;
+          logoUrl = `${API_BASE_URL}${companyData.company_logo}`;
         } else {
-          logoUrl = `http://16.176.159.91:8000/media/${companyData.company_logo}`;
+          logoUrl = `${API_BASE_URL}/media/${companyData.company_logo}`;
         }
 
         setExistingLogoUrl(logoUrl);
@@ -152,7 +154,7 @@ const handleConfirm = async () => {
 
   try {
     const response = await axios.post(
-      `http://16.176.159.91:8000/accounts/projects/customer/${selectedCustomerId}/send-to-production/`,
+      `${API_BASE_URL}/accounts/projects/customer/${selectedCustomerId}/send-to-production/`,
       {}, // empty body since backend overrides status anyway
       {
         headers: { "X-CSRFToken": csrftoken },
@@ -228,7 +230,7 @@ async function handleLogout() {
   setLogoutMsg(null);
 
   try {
-    const response = await fetch("http://16.176.159.91:8000/accounts/logout/", {
+    const response = await fetch(`${API_BASE_URL}/accounts/logout/`, {
       method: "POST",
       credentials: "include",
     });

@@ -8,6 +8,8 @@ const getCookie = (name) => {
   return v.length === 2 ? v.pop().split(";").shift() : "";
 };
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
 export default function Signup() {
   const [form, setForm] = useState({
     fullName: "",
@@ -25,6 +27,8 @@ export default function Signup() {
   const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
 
+  
+
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -40,7 +44,7 @@ export default function Signup() {
     setOtpLoading(true);
 
     try {
-      const res = await fetch("http://16.176.159.91:8000/accounts/send-otp/", {
+      const res = await fetch(`${API_BASE_URL}/accounts/send-otp/`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -75,7 +79,7 @@ export default function Signup() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://16.176.159.91:8000/accounts/signup/", {
+      const res = await fetch(`${API_BASE_URL}/accounts/signup/`, {
         method: "POST",
         credentials: "include",
         headers: {

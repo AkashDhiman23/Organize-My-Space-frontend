@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
@@ -15,7 +16,8 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://16.176.159.91:8000/accounts/csrf/", {
+    axios.get(
+        `${API_BASE_URL}/accounts/login/`, {
       withCredentials: true,
     });
   }, []);
@@ -49,7 +51,7 @@ function Login() {
       const csrftoken = getCookie("csrftoken");
 
       const res = await axios.post(
-        "http://16.176.159.91:8000/accounts/login/",
+        `${API_BASE_URL}/accounts/login/`,
         {
           email: formData.email,
           password: formData.password,

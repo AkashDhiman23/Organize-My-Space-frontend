@@ -17,6 +17,8 @@ import "./Dashboard.css";
 
 const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f"];
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
 
 function getCookie(name) {
   let cookieValue = null;
@@ -113,10 +115,10 @@ const completedProjects = customers.filter(
   const fetchAll = useCallback(async () => {
   try {
     const [mRes, cRes, pRes, sRes] = await Promise.all([
-      fetch("http://16.176.159.91:8000/accounts/members/", { credentials: "include" }),
-      fetch("http://16.176.159.91:8000/accounts/all_customers_admin/", { credentials: "include" }),
-      fetch("http://16.176.159.91:8000/accounts/projects-list/", { credentials: "include" }),
-      fetch("http://16.176.159.91:8000/accounts/admin_settings/", { credentials: "include" }),
+      fetch(`${API_BASE_URL}/accounts/members/`, { credentials: "include" }),
+      fetch(`${API_BASE_URL}/accounts/all_customers_admin/`, { credentials: "include" }),
+      fetch(`${API_BASE_URL}/accounts/projects-list/`, { credentials: "include" }),
+      fetch(`${API_BASE_URL}/accounts/admin_settings/`, { credentials: "include" }),
     ]);
 
     if (mRes.ok) {
@@ -143,7 +145,7 @@ const completedProjects = customers.filter(
       if (settingsData.company_logo) {
         const fullUrl = settingsData.company_logo.startsWith("http")
           ? settingsData.company_logo
-          : `http://16.176.159.91:8000${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
+          : `${API_BASE_URL}/${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
         setCompanyLogoUrl(fullUrl);
       }
     }
@@ -224,11 +226,11 @@ const completedProjects = customers.filter(
 
   try {
     // Ensure CSRF token is set
-    await fetch("http://16.176.159.91:8000/accounts/csrf-token/", {
+    await fetch(`${API_BASE_URL}/accounts/csrf-token/`, {
       credentials: 'include',
     });
 
-    const res = await fetch('http://16.176.159.91:8000/accounts/create-member/', {
+    const res = await fetch(`${API_BASE_URL}/accounts/create-member/`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -273,7 +275,7 @@ async function handleLogout() {
   setLogoutMsg(null);
 
   try {
-    const response = await fetch("http://16.176.159.91:8000/accounts/logout/", {
+    const response = await fetch(`${API_BASE_URL}/accounts/logout/`, {
       method: "POST",
       credentials: "include",
     });
@@ -307,7 +309,7 @@ const teamMembers = members;   // alias so ESLint sees it
 useEffect(() => {
   async function fetchSettings() {
     try {
-      const res = await fetch('http://16.176.159.91:8000/accounts/admin_settings/', {
+      const res = await fetch(`${API_BASE_URL}accounts/admin_settings/`, {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch settings');
@@ -325,7 +327,7 @@ useEffect(() => {
         // For example, if relative path: 'uploads/logo.png'
         const fullLogoUrl = data.company_logo.startsWith('http')
           ? data.company_logo
-          : `http://16.176.159.91:8000/media/company_logos${data.company_logo}`;
+          : `${API_BASE_URL}/media/company_logos${data.company_logo}`;
         setExistingLogoUrl(fullLogoUrl);
       } else {
         setExistingLogoUrl(null);
@@ -362,7 +364,7 @@ const handleLogoChange = (e) => {
       formData.append('gst_details', gstNumber);
       if (companyLogo) formData.append('company_logo', companyLogo);
 
-      const res = await fetch('http://16.176.159.91:8000/accounts/admin_settings/', {
+      const res = await fetch(`${API_BASE_URL}/accounts/admin_settings/`, {
         method: 'PUT',
         credentials: 'include',
         headers: {

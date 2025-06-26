@@ -3,6 +3,10 @@ import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import './Signup.css';
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
+
 // Helper function to get CSRF token from cookies
 function getCookie(name) {
   let cookieValue = null;
@@ -18,6 +22,7 @@ function getCookie(name) {
   }
   return cookieValue;
 }
+
 
 function CompanyDetails() {
   const { adminId } = useParams(); 
@@ -42,7 +47,7 @@ function CompanyDetails() {
     const csrftoken = getCookie('csrftoken');
 
     try {
-      const res = await fetch('http://16.176.159.91:8000/accounts/create-company/', {
+      const res = await fetch(`${API_BASE_URL}/accounts/create-company/`, {
         method: 'POST',
         credentials: 'include',  // Send cookies (sessionid)
         headers: {

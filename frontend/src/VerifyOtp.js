@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './VerifyOtp.css';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 
 function VerifyOtp() {
   const { admin_id } = useParams(); // from the URL: /verify-otp/:admin_id
@@ -17,7 +18,7 @@ function VerifyOtp() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://16.176.159.91:8000/accounts/verify-otp/', {
+      const res = await fetch(`${API_BASE_URL}/accounts/verify-otp/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ admin_id, otp })
