@@ -28,8 +28,8 @@ export default function Signup() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const sendOtp = async () => {
-    if (!form.email) {
-      setError("Enter email first");
+    if (!form.email.trim()) {
+      setError("Please enter your email first.");
       return;
     }
     setError(null);
@@ -42,7 +42,7 @@ export default function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: form.email }),
+        body: JSON.stringify({ email: form.email.trim().toLowerCase() }),
       });
 
       const data = await res.json();
@@ -50,7 +50,7 @@ export default function Signup() {
       if (!res.ok) throw new Error(data?.detail || "Could not send OTP");
 
       setOtpSent(true);
-      setInfo("OTP sent! Check your inbox.");
+      setInfo("OTP sent! Please check your email.");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -64,12 +64,12 @@ export default function Signup() {
     setInfo(null);
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match.");
       return;
     }
 
-    if (!form.otp) {
-      setError("Please enter the OTP");
+    if (!form.otp.trim()) {
+      setError("Please enter the OTP.");
       return;
     }
 
@@ -81,24 +81,27 @@ export default function Signup() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          full_name: form.fullName,
-          email: form.email,
+          full_name: form.fullName.trim(),
+          email: form.email.trim().toLowerCase(),
           password: form.password,
-          company_name: form.companyName,
-          address: form.address,
-          gst_details: form.gstDetails,
-          otp: form.otp,
+          company_name: form.companyName.trim(),
+          address: form.address.trim(),
+          gst_details: form.gstDetails.trim(),
+          otp: form.otp.trim(),
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.detail || "Signup failed");
+      if (!res.ok) throw new Error(data?.detail || JSON.stringify(data));
 
-      // Optional: Store JWT tokens (access, refresh) if backend returns them
-      localStorage.setItem("access", data.access);
-      localStorage.setItem("refresh", data.refresh);
+      // Store JWT tokens if returned
+      if (data.access && data.refresh) {
+        localStorage.setItem("access", data.access);
+        localStorage.setItem("refresh", data.refresh);
+      }
 
-      navigate("/login");
+      setInfo("Signup successful! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -143,6 +146,7 @@ export default function Signup() {
               value={form.password}
               onChange={handleChange}
               required
+              minLength={6}
             />
             <input
               type="password"
@@ -152,6 +156,7 @@ export default function Signup() {
               value={form.confirmPassword}
               onChange={handleChange}
               required
+              minLength={6}
             />
             <input
               type="text"
