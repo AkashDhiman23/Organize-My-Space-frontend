@@ -5,9 +5,8 @@ import "./Projectdetails.css";
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis } from "recharts";
 
 
-const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
 
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 function ManagerDashboard() {
   const navigate = useNavigate();
 

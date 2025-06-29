@@ -17,24 +17,7 @@ import "./Dashboard.css";
 
 const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f"];
 
-const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
 
-
-
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -116,10 +99,10 @@ const completedProjects = customers.filter(
   const fetchAll = useCallback(async () => {
   try {
     const [mRes, cRes, pRes, sRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/accounts/members/`, { credentials: "include" }),
-      fetch(`${API_BASE_URL}/accounts/all_customers_admin/`, { credentials: "include" }),
-      fetch(`${API_BASE_URL}/accounts/projects-list/`, { credentials: "include" }),
-      fetch(`${API_BASE_URL}/accounts/admin_settings/`, { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/members/", { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/all_customers_admin/", { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/projects-list/", { credentials: "include" }),
+      fetch("http://localhost:8000/accounts/admin_settings/", { credentials: "include" }),
     ]);
 
     if (mRes.ok) {
@@ -146,7 +129,7 @@ const completedProjects = customers.filter(
       if (settingsData.company_logo) {
         const fullUrl = settingsData.company_logo.startsWith("http")
           ? settingsData.company_logo
-          : `${API_BASE_URL}/${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
+          : `http://localhost:8000${settingsData.company_logo.startsWith("/") ? "" : "/media/"}${settingsData.company_logo}`;
         setCompanyLogoUrl(fullUrl);
       }
     }
@@ -221,44 +204,36 @@ const completedProjects = customers.filter(
     return match ? decodeURIComponent(match[2]) : null;
   };
 
+  // Add member form submit handler
   const handleAddMember = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-
-  try {
-    // Ensure CSRF token is set
-    await fetch(`${API_BASE_URL}/accounts/csrf-token/`, {
-      credentials: 'include',
-    });
-
-    const res = await fetch(`${API_BASE_URL}/accounts/create-member/`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
-      },
-      body: JSON.stringify({ full_name: fullName, email, role, password }),
-    });
-
-    if (!res.ok) {
-      const errData = await res.json();
-      throw new Error(errData.error || 'Failed to create member');
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/accounts/create-member/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({ full_name: fullName, email, role, password }),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to create member');
+      }
+      setMessage('Member added successfully!');
+      setFullName('');
+      setEmail('');
+      setPassword('');
+      setRole('Designer');
+      fetchAll();
+    } catch (err) {
+      setMessage('Error: ' + err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setMessage('Member added successfully!');
-    setFullName('');
-    setEmail('');
-    setPassword('');
-    setRole('Designer');
-    fetchAll();
-  } catch (err) {
-    setMessage('Error: ' + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   
 function handleLogoutConfirm() {
@@ -276,7 +251,7 @@ async function handleLogout() {
   setLogoutMsg(null);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/accounts/logout/`, {
+    const response = await fetch("http://localhost:8000/accounts/logout/", {
       method: "POST",
       credentials: "include",
     });
@@ -310,7 +285,7 @@ const teamMembers = members;   // alias so ESLint sees it
 useEffect(() => {
   async function fetchSettings() {
     try {
-      const res = await fetch(`${API_BASE_URL}accounts/admin_settings/`, {
+      const res = await fetch('http://localhost:8000/accounts/admin_settings/', {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch settings');
@@ -328,7 +303,7 @@ useEffect(() => {
         // For example, if relative path: 'uploads/logo.png'
         const fullLogoUrl = data.company_logo.startsWith('http')
           ? data.company_logo
-          : `${API_BASE_URL}/media/company_logos${data.company_logo}`;
+          : `http://localhost:8000/media/company_logos${data.company_logo}`;
         setExistingLogoUrl(fullLogoUrl);
       } else {
         setExistingLogoUrl(null);
@@ -365,7 +340,7 @@ const handleLogoChange = (e) => {
       formData.append('gst_details', gstNumber);
       if (companyLogo) formData.append('company_logo', companyLogo);
 
-      const res = await fetch(`${API_BASE_URL}/accounts/admin_settings/`, {
+      const res = await fetch('http://localhost:8000/accounts/admin_settings/', {
         method: 'PUT',
         credentials: 'include',
         headers: {

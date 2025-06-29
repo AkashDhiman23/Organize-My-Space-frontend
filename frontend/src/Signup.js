@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Signup.css";
 
-const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
+/* helper: read cookie for CSRF */
+const getCookie = (name) => {
+  const v = `; ${document.cookie}`.split(`; ${name}=`);
+  return v.length === 2 ? v.pop().split(";").shift() : "";
+};
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -15,12 +21,13 @@ export default function Signup() {
     gstDetails: "",
     otp: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
+
+  
 
   const navigate = useNavigate();
 
@@ -28,8 +35,8 @@ export default function Signup() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const sendOtp = async () => {
-    if (!form.email.trim()) {
-      setError("Please enter your email first.");
+    if (!form.email) {
+      setError("Enter e‑mail first");
       return;
     }
     setError(null);
@@ -39,20 +46,18 @@ export default function Signup() {
     try {
       const res = await fetch(`${API_BASE_URL}/accounts/send-otp/`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
         },
-        body: JSON.stringify({ email: form.email.trim().toLowerCase() }),
+        body: JSON.stringify({ email: form.email }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data?.detail || "Could not send OTP");
-
+      if (!res.ok) throw new Error(await res.text());
       setOtpSent(true);
-      setInfo("OTP sent! Please check your email.");
+      setInfo("OTP sent! Check your inbox.");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Could not send OTP");
     } finally {
       setOtpLoading(false);
     }
@@ -64,12 +69,11 @@ export default function Signup() {
     setInfo(null);
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Passwords do not match");
       return;
     }
-
-    if (!form.otp.trim()) {
-      setError("Please enter the OTP.");
+    if (!form.otp) {
+      setError("Please enter the OTP");
       return;
     }
 
@@ -77,31 +81,24 @@ export default function Signup() {
     try {
       const res = await fetch(`${API_BASE_URL}/accounts/signup/`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
         },
         body: JSON.stringify({
-          full_name: form.fullName.trim(),
-          email: form.email.trim().toLowerCase(),
+          full_name: form.fullName,
+          email: form.email,
           password: form.password,
-          company_name: form.companyName.trim(),
-          address: form.address.trim(),
-          gst_details: form.gstDetails.trim(),
-          otp: form.otp.trim(),
+          company_name: form.companyName,
+          address: form.address,
+          gst_details: form.gstDetails,
+          otp: form.otp,
         }),
       });
-
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.detail || JSON.stringify(data));
-
-      // Store JWT tokens if returned
-      if (data.access && data.refresh) {
-        localStorage.setItem("access", data.access);
-        localStorage.setItem("refresh", data.refresh);
-      }
-
-      setInfo("Signup successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1500);
+      if (!res.ok) throw new Error(data.detail || "Signup failed");
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -138,6 +135,7 @@ export default function Signup() {
               onChange={handleChange}
               required
             />
+
             <input
               type="password"
               name="password"
@@ -146,7 +144,6 @@ export default function Signup() {
               value={form.password}
               onChange={handleChange}
               required
-              minLength={6}
             />
             <input
               type="password"
@@ -156,8 +153,8 @@ export default function Signup() {
               value={form.confirmPassword}
               onChange={handleChange}
               required
-              minLength={6}
             />
+
             <input
               type="text"
               name="companyName"

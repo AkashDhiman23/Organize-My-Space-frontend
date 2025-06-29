@@ -3,8 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./designerdashboard.css";
 
-const API_BASE_URL = "http://omsbackendenv-dev.ap-southeast-2.elasticbeanstalk.com";
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
 
 function DesignerDashboard() {
   const [companyDetails, setCompanyDetails] = useState({
